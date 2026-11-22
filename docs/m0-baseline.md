@@ -128,9 +128,39 @@ Port **8080** on this machine is held by another local process (`ApplicationWebS
 PID 16120, listening `0.0.0.0:8080`). The check hard-codes 8080/8081/8082/8083, so it
 cannot start. Ports 8081, 8082, 8083, 8791, 9782 were free.
 
-**Decision:** do not kill an unrelated process. The Chrome half is deferred and re-run as
-soon as 8080 is free — it is also the harness we will reuse for the Stage 1 evidence
-chain, so it must run before M3 sign-off. Output: `raw-m0-chrome-linking.txt`.
+**Decision:** do not kill an unrelated process. The Chrome half was deferred until 8080
+was free; see §5b for the completed run. Output: `raw-m0-chrome-linking.txt`.
+
+## 5b. Linking test bed — real Chrome half, completed
+
+Re-run on 2026-11-22 after the unrelated process on 8080 was stopped by the user.
+
+```shell
+node D:\OpenAgenticWeb\tests\linking\chrome\run_linking_check.mjs ^
+  --out D:\Conveyor\_baseline\linking-chrome2 ^
+  --chrome "C:\Program Files\Google\Chrome\Application\chrome.exe"
+```
+
+Result: **39 passed, 0 failed, 0 skipped, exit 0.** Output: `raw-m0-chrome-linking2.txt`;
+report and per-case evidence in `_baseline\linking-chrome2\` (git-ignored).
+
+| Case | Result | What it proves for our red line |
+| --- | --- | --- |
+| C1 / C2 (7 directions) | pass | One consent card before any contact; the partner's files and bridge are fetched only after Allow; every model call runs on the caller's router with the visitor's key; the partner never receives the key or an `Authorization` header. Consent→answer 399–594 ms. |
+| C3 (7 directions) | pass | Declining sends nothing at all to the partner. |
+| C4 | pass | The same between real example sites, not just fixtures. |
+| C9 | pass | A bridge **read** runs in a frame on the partner's own origin, parses the partner's page with `DOMParser`, and its facts reach the caller. |
+| **C10** | **pass** | A bridge **write** (`book_departure`, `place_order`) opens the partner's own window; the check types the details there and submits; the receipt returns to the caller, and **no model request held a typed detail**. |
+| **C11** | **pass** | Cancel in the partner's window returns a cancelled result. |
+| C5 / C6 | pass | Keyless read check succeeds; each bridge page loads only the modules its `bridge-actions.js` imports, never the page or its boot files. |
+
+**Consequence for M1:** the mechanism the plan calls the red line is already proven on
+this machine against the official sites — `peer loading → consent → bridge read → bridge
+write in the callee's own window → receipt`. M1 therefore only has to reproduce it with
+our own courier intake, not discover it.
+
+Note: this Chrome run uses the official examples as served, so it is not affected by the
+`partner_rules` warning of §1 (that is the Node `L8` build assertion only).
 
 ## Summary against M0 acceptance
 
@@ -138,7 +168,7 @@ chain, so it must run before M3 sign-off. Output: `raw-m0-chrome-linking.txt`.
 | --- | --- |
 | Repository public and clonable | done (this commit, `niu602/Conveyor`) |
 | Official pizza example: build + tests green | **31/31 pass**, build exit 0 (1 known upstream warning) |
-| Linking baseline recorded in `docs/` | Node half recorded (55 pass / 5 known L8 fails / 3 documented skips); Chrome half blocked by port 8080, logged |
+| Linking baseline recorded in `docs/` | Node half: 55 pass / 5 known L8 fails / 3 documented skips. **Chrome half: 39 pass / 0 fail**, C10+C11 bridge write proven (§5b) |
 | Official clone untouched | verified with `git status` |
 
 ## Repository
