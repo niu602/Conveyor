@@ -1,0 +1,10 @@
+Output: D:\Conveyor\_baseline\linking-chrome
+Site guesthouse: D:\OpenAgenticWeb\examples\guesthouse_agentified
+Site tours: D:\OpenAgenticWeb\examples\harbor_tours_agentified
+Site caller: D:\OpenAgenticWeb\tests\linking\fixtures\caller_site (test site)
+Site pizza: D:\OpenAgenticWeb\examples\marrow_point_pizza_agentified
+Mock router: http://127.0.0.1:8791/v1
+Serving the fixture caller at http://localhost:8082/ from D:\Conveyor\_baseline\linking-chrome\sites\caller_site
+ERROR: The guesthouse server stopped: Cannot serve D:\OpenAgenticWeb\examples\guesthouse_agentified: listen EACCES: permission denied 127.0.0.1:8080
+0 passed, 0 failed, 0 skipped, 0 for information.
+Report: D:\Conveyor\_baseline\linking-chrome\report.json

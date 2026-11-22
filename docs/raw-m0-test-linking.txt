@@ -1,0 +1,681 @@
+TAP version 13
+# Subtest: L1 fixture caller -> guesthouse: one card, then the partner's files and bridge, on the caller's model
+ok 1 - L1 fixture caller -> guesthouse: one card, then the partner's files and bridge, on the caller's model
+  ---
+  duration_ms: 268.8633
+  type: 'test'
+  ...
+# Subtest: L2 fixture caller -> guesthouse: the visitor's model is used by both sites
+ok 2 - L2 fixture caller -> guesthouse: the visitor's model is used by both sites
+  ---
+  duration_ms: 14.9464
+  type: 'test'
+  ...
+# Subtest: L3 fixture caller -> guesthouse: a decline contacts no one
+ok 3 - L3 fixture caller -> guesthouse: a decline contacts no one
+  ---
+  duration_ms: 10.0486
+  type: 'test'
+  ...
+# Subtest: L5 fixture caller -> guesthouse: the partner is not offered a call back
+ok 4 - L5 fixture caller -> guesthouse: the partner is not offered a call back
+  ---
+  duration_ms: 9.7276
+  type: 'test'
+  ...
+# The partner's network does not call http://localhost:8082/marrow_point_visitor_desk, so the test adds that call.
+# Subtest: L6 fixture caller -> guesthouse: a second call is skipped and the partner runs once
+ok 5 - L6 fixture caller -> guesthouse: a second call is skipped and the partner runs once
+  ---
+  duration_ms: 10.6325
+  type: 'test'
+  ...
+# Consent cards shown: 2
+# Subtest: L7 fixture caller -> guesthouse: a partner missing from allowed_peers is refused
+ok 6 - L7 fixture caller -> guesthouse: a partner missing from allowed_peers is refused
+  ---
+  duration_ms: 7.5921
+  type: 'test'
+  ...
+# Consent cards shown: 1
+# Subtest: L9 fixture caller -> guesthouse: a partner that fails validation never runs
+ok 7 - L9 fixture caller -> guesthouse: a partner that fails validation never runs
+  ---
+  duration_ms: 7.3494
+  type: 'test'
+  ...
+# Subtest: L11 fixture caller -> guesthouse: the partner reads what its site shares, in a frame on its own origin
+ok 8 - L11 fixture caller -> guesthouse: the partner reads what its site shares, in a frame on its own origin # SKIP The partner's site does not share website_search_rooms with http://localhost:8082, so its agents never get it (L1 and L4 check that).
+  ---
+  duration_ms: 3.7246
+  type: 'test'
+  ...
+# Subtest: L4 guesthouse -> tour site: one card, then the partner's files and bridge, on the caller's model
+ok 9 - L4 guesthouse -> tour site: one card, then the partner's files and bridge, on the caller's model
+  ---
+  duration_ms: 178.0871
+  type: 'test'
+  ...
+# Both sites name alibaba/qwen3.8-flash, so the partner's network is served naming gpt-4o-mini, to show which site chose the partner's model.
+# Subtest: L2 guesthouse -> tour site: the visitor's model is used by both sites
+ok 10 - L2 guesthouse -> tour site: the visitor's model is used by both sites
+  ---
+  duration_ms: 9.9788
+  type: 'test'
+  ...
+# Subtest: L3 guesthouse -> tour site: a decline contacts no one
+ok 11 - L3 guesthouse -> tour site: a decline contacts no one
+  ---
+  duration_ms: 7.4955
+  type: 'test'
+  ...
+# Subtest: L5 guesthouse -> tour site: the partner is not offered a call back
+ok 12 - L5 guesthouse -> tour site: the partner is not offered a call back
+  ---
+  duration_ms: 6.872
+  type: 'test'
+  ...
+# Subtest: L6 guesthouse -> tour site: a second call is skipped and the partner runs once
+ok 13 - L6 guesthouse -> tour site: a second call is skipped and the partner runs once
+  ---
+  duration_ms: 9.6778
+  type: 'test'
+  ...
+# Consent cards shown: 2
+# Subtest: L7 guesthouse -> tour site: a partner missing from allowed_peers is refused
+ok 14 - L7 guesthouse -> tour site: a partner missing from allowed_peers is refused
+  ---
+  duration_ms: 8.8078
+  type: 'test'
+  ...
+# Consent cards shown: 1
+# Subtest: L9 guesthouse -> tour site: a partner that fails validation never runs
+ok 15 - L9 guesthouse -> tour site: a partner that fails validation never runs
+  ---
+  duration_ms: 6.2914
+  type: 'test'
+  ...
+# Subtest: L11 guesthouse -> tour site: the partner reads what its site shares, in a frame on its own origin
+ok 16 - L11 guesthouse -> tour site: the partner reads what its site shares, in a frame on its own origin
+  ---
+  duration_ms: 14.9312
+  type: 'test'
+  ...
+# Subtest: L4 tour site -> guesthouse: one card, then the partner's files and bridge, on the caller's model
+ok 17 - L4 tour site -> guesthouse: one card, then the partner's files and bridge, on the caller's model
+  ---
+  duration_ms: 8.3745
+  type: 'test'
+  ...
+# Both sites name alibaba/qwen3.8-flash, so the partner's network is served naming gpt-4o-mini, to show which site chose the partner's model.
+# Subtest: L2 tour site -> guesthouse: the visitor's model is used by both sites
+ok 18 - L2 tour site -> guesthouse: the visitor's model is used by both sites
+  ---
+  duration_ms: 6.805
+  type: 'test'
+  ...
+# Subtest: L3 tour site -> guesthouse: a decline contacts no one
+ok 19 - L3 tour site -> guesthouse: a decline contacts no one
+  ---
+  duration_ms: 5.4005
+  type: 'test'
+  ...
+# Subtest: L5 tour site -> guesthouse: the partner is not offered a call back
+ok 20 - L5 tour site -> guesthouse: the partner is not offered a call back
+  ---
+  duration_ms: 8.8061
+  type: 'test'
+  ...
+# Subtest: L6 tour site -> guesthouse: a second call is skipped and the partner runs once
+ok 21 - L6 tour site -> guesthouse: a second call is skipped and the partner runs once
+  ---
+  duration_ms: 7.1741
+  type: 'test'
+  ...
+# Consent cards shown: 2
+# Subtest: L7 tour site -> guesthouse: a partner missing from allowed_peers is refused
+ok 22 - L7 tour site -> guesthouse: a partner missing from allowed_peers is refused
+  ---
+  duration_ms: 7.2876
+  type: 'test'
+  ...
+# Consent cards shown: 1
+# Subtest: L9 tour site -> guesthouse: a partner that fails validation never runs
+ok 23 - L9 tour site -> guesthouse: a partner that fails validation never runs
+  ---
+  duration_ms: 7.1926
+  type: 'test'
+  ...
+# Subtest: L11 tour site -> guesthouse: the partner reads what its site shares, in a frame on its own origin
+ok 24 - L11 tour site -> guesthouse: the partner reads what its site shares, in a frame on its own origin
+  ---
+  duration_ms: 9.8537
+  type: 'test'
+  ...
+# Subtest: L4 guesthouse -> pizza site: one card, then the partner's files and bridge, on the caller's model
+ok 25 - L4 guesthouse -> pizza site: one card, then the partner's files and bridge, on the caller's model
+  ---
+  duration_ms: 9.5943
+  type: 'test'
+  ...
+# Both sites name alibaba/qwen3.8-flash, so the partner's network is served naming gpt-4o-mini, to show which site chose the partner's model.
+# Subtest: L2 guesthouse -> pizza site: the visitor's model is used by both sites
+ok 26 - L2 guesthouse -> pizza site: the visitor's model is used by both sites
+  ---
+  duration_ms: 8.128
+  type: 'test'
+  ...
+# Subtest: L3 guesthouse -> pizza site: a decline contacts no one
+ok 27 - L3 guesthouse -> pizza site: a decline contacts no one
+  ---
+  duration_ms: 4.2474
+  type: 'test'
+  ...
+# Subtest: L5 guesthouse -> pizza site: the partner is not offered a call back
+ok 28 - L5 guesthouse -> pizza site: the partner is not offered a call back
+  ---
+  duration_ms: 6.0143
+  type: 'test'
+  ...
+# Subtest: L6 guesthouse -> pizza site: a second call is skipped and the partner runs once
+ok 29 - L6 guesthouse -> pizza site: a second call is skipped and the partner runs once
+  ---
+  duration_ms: 8.0303
+  type: 'test'
+  ...
+# Consent cards shown: 2
+# Subtest: L7 guesthouse -> pizza site: a partner missing from allowed_peers is refused
+ok 30 - L7 guesthouse -> pizza site: a partner missing from allowed_peers is refused
+  ---
+  duration_ms: 4.2403
+  type: 'test'
+  ...
+# Consent cards shown: 1
+# Subtest: L9 guesthouse -> pizza site: a partner that fails validation never runs
+ok 31 - L9 guesthouse -> pizza site: a partner that fails validation never runs
+  ---
+  duration_ms: 5.5376
+  type: 'test'
+  ...
+# Subtest: L11 guesthouse -> pizza site: the partner reads what its site shares, in a frame on its own origin
+ok 32 - L11 guesthouse -> pizza site: the partner reads what its site shares, in a frame on its own origin # SKIP The partner's only read also reads its page's HTML, which needs a browser. The Chrome check runs it.
+  ---
+  duration_ms: 4.4472
+  type: 'test'
+  ...
+# Subtest: L4 pizza site -> guesthouse: one card, then the partner's files and bridge, on the caller's model
+ok 33 - L4 pizza site -> guesthouse: one card, then the partner's files and bridge, on the caller's model
+  ---
+  duration_ms: 6.5121
+  type: 'test'
+  ...
+# Both sites name alibaba/qwen3.8-flash, so the partner's network is served naming gpt-4o-mini, to show which site chose the partner's model.
+# Subtest: L2 pizza site -> guesthouse: the visitor's model is used by both sites
+ok 34 - L2 pizza site -> guesthouse: the visitor's model is used by both sites
+  ---
+  duration_ms: 6.6317
+  type: 'test'
+  ...
+# Subtest: L3 pizza site -> guesthouse: a decline contacts no one
+ok 35 - L3 pizza site -> guesthouse: a decline contacts no one
+  ---
+  duration_ms: 5.1384
+  type: 'test'
+  ...
+# Subtest: L5 pizza site -> guesthouse: the partner is not offered a call back
+ok 36 - L5 pizza site -> guesthouse: the partner is not offered a call back
+  ---
+  duration_ms: 6.5274
+  type: 'test'
+  ...
+# Subtest: L6 pizza site -> guesthouse: a second call is skipped and the partner runs once
+ok 37 - L6 pizza site -> guesthouse: a second call is skipped and the partner runs once
+  ---
+  duration_ms: 6.771
+  type: 'test'
+  ...
+# Consent cards shown: 2
+# Subtest: L7 pizza site -> guesthouse: a partner missing from allowed_peers is refused
+ok 38 - L7 pizza site -> guesthouse: a partner missing from allowed_peers is refused
+  ---
+  duration_ms: 5.0931
+  type: 'test'
+  ...
+# Consent cards shown: 1
+# Subtest: L9 pizza site -> guesthouse: a partner that fails validation never runs
+ok 39 - L9 pizza site -> guesthouse: a partner that fails validation never runs
+  ---
+  duration_ms: 5.5173
+  type: 'test'
+  ...
+# Subtest: L11 pizza site -> guesthouse: the partner reads what its site shares, in a frame on its own origin
+ok 40 - L11 pizza site -> guesthouse: the partner reads what its site shares, in a frame on its own origin
+  ---
+  duration_ms: 11.12
+  type: 'test'
+  ...
+# Subtest: L4 tour site -> pizza site: one card, then the partner's files and bridge, on the caller's model
+ok 41 - L4 tour site -> pizza site: one card, then the partner's files and bridge, on the caller's model
+  ---
+  duration_ms: 8.8716
+  type: 'test'
+  ...
+# Both sites name alibaba/qwen3.8-flash, so the partner's network is served naming gpt-4o-mini, to show which site chose the partner's model.
+# Subtest: L2 tour site -> pizza site: the visitor's model is used by both sites
+ok 42 - L2 tour site -> pizza site: the visitor's model is used by both sites
+  ---
+  duration_ms: 7.7057
+  type: 'test'
+  ...
+# Subtest: L3 tour site -> pizza site: a decline contacts no one
+ok 43 - L3 tour site -> pizza site: a decline contacts no one
+  ---
+  duration_ms: 4.0079
+  type: 'test'
+  ...
+# Subtest: L5 tour site -> pizza site: the partner is not offered a call back
+ok 44 - L5 tour site -> pizza site: the partner is not offered a call back
+  ---
+  duration_ms: 7.1561
+  type: 'test'
+  ...
+# Subtest: L6 tour site -> pizza site: a second call is skipped and the partner runs once
+ok 45 - L6 tour site -> pizza site: a second call is skipped and the partner runs once
+  ---
+  duration_ms: 7.078
+  type: 'test'
+  ...
+# Consent cards shown: 2
+# Subtest: L7 tour site -> pizza site: a partner missing from allowed_peers is refused
+ok 46 - L7 tour site -> pizza site: a partner missing from allowed_peers is refused
+  ---
+  duration_ms: 4.5791
+  type: 'test'
+  ...
+# Consent cards shown: 1
+# Subtest: L9 tour site -> pizza site: a partner that fails validation never runs
+ok 47 - L9 tour site -> pizza site: a partner that fails validation never runs
+  ---
+  duration_ms: 4.6809
+  type: 'test'
+  ...
+# Subtest: L11 tour site -> pizza site: the partner reads what its site shares, in a frame on its own origin
+ok 48 - L11 tour site -> pizza site: the partner reads what its site shares, in a frame on its own origin # SKIP The partner's only read also reads its page's HTML, which needs a browser. The Chrome check runs it.
+  ---
+  duration_ms: 4.5483
+  type: 'test'
+  ...
+# Subtest: L4 pizza site -> tour site: one card, then the partner's files and bridge, on the caller's model
+ok 49 - L4 pizza site -> tour site: one card, then the partner's files and bridge, on the caller's model
+  ---
+  duration_ms: 5.4283
+  type: 'test'
+  ...
+# Both sites name alibaba/qwen3.8-flash, so the partner's network is served naming gpt-4o-mini, to show which site chose the partner's model.
+# Subtest: L2 pizza site -> tour site: the visitor's model is used by both sites
+ok 50 - L2 pizza site -> tour site: the visitor's model is used by both sites
+  ---
+  duration_ms: 5.7073
+  type: 'test'
+  ...
+# Subtest: L3 pizza site -> tour site: a decline contacts no one
+ok 51 - L3 pizza site -> tour site: a decline contacts no one
+  ---
+  duration_ms: 5.4234
+  type: 'test'
+  ...
+# Subtest: L5 pizza site -> tour site: the partner is not offered a call back
+ok 52 - L5 pizza site -> tour site: the partner is not offered a call back
+  ---
+  duration_ms: 5.8095
+  type: 'test'
+  ...
+# Subtest: L6 pizza site -> tour site: a second call is skipped and the partner runs once
+ok 53 - L6 pizza site -> tour site: a second call is skipped and the partner runs once
+  ---
+  duration_ms: 6.4518
+  type: 'test'
+  ...
+# Consent cards shown: 2
+# Subtest: L7 pizza site -> tour site: a partner missing from allowed_peers is refused
+ok 54 - L7 pizza site -> tour site: a partner missing from allowed_peers is refused
+  ---
+  duration_ms: 5.5392
+  type: 'test'
+  ...
+# Consent cards shown: 1
+# Subtest: L9 pizza site -> tour site: a partner that fails validation never runs
+ok 55 - L9 pizza site -> tour site: a partner that fails validation never runs
+  ---
+  duration_ms: 6.7687
+  type: 'test'
+  ...
+# Subtest: L11 pizza site -> tour site: the partner reads what its site shares, in a frame on its own origin
+ok 56 - L11 pizza site -> tour site: the partner reads what its site shares, in a frame on its own origin
+  ---
+  duration_ms: 9.4845
+  type: 'test'
+  ...
+# Subtest: L10 fixture caller -> tour site -> guesthouse: each hop asks first, all on the caller's model
+ok 57 - L10 fixture caller -> tour site -> guesthouse: each hop asks first, all on the caller's model
+  ---
+  duration_ms: 7.9029
+  type: 'test'
+  ...
+# Subtest: L10 fixture caller -> tour site -> guesthouse: the tour site's own allowed_peers refuses the second hop
+ok 58 - L10 fixture caller -> tour site -> guesthouse: the tour site's own allowed_peers refuses the second hop
+  ---
+  duration_ms: 6.7215
+  type: 'test'
+  ...
+# Subtest: L8 the guesthouse keeps the skill's runtime and rules, and builds clean
+not ok 59 - L8 the guesthouse keeps the skill's runtime and rules, and builds clean
+  ---
+  duration_ms: 11682.9993
+  type: 'test'
+  location: 'D:\\OpenAgenticWeb\\tests\\linking\\linking.test.mjs:1103:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Network: tidewhistle_guesthouse
+    Front agent: tidewhistle_assistant
+    Agents: 1
+      - tidewhistle_assistant: 4398 instruction chars (+1612 CRUSE context added by the runtime); tools: [http://localhost:8081/marrow_point_harbor_tours, http://[::1]:8083/little_oven_pizza]
+    Website tools from actions.agentTools: website_get_guesthouse_state, website_get_house_policies, website_search_rooms, website_quote_stay, website_fill_booking_form, website_look_up_booking, website_place_booking, website_cancel_booking
+      On this site's page, an agent gets the ones the page registers as local-only. Called from another site, it gets the ones bridge/bridge-actions.js shares with that site.
+    Added to every agent by the runtime: render_cruse
+    Bridge: bridge/action-bridge.html (shares the actions in bridge/bridge-actions.js with the callers they list)
+    Partner tools: marrow_point_harbor_tours -> http://localhost:8081/marrow_point_harbor_tours ("Marrow Point Harbor Tours")
+      Before hosting: http://localhost:8081/marrow_point_harbor_tours works only on this machine. Put the partner's https network URL in tools and link_labels, and its origin in allowed_peers, then build again. The tool name comes from the URL's path, so change the "How to work" line if the build then warns about it.
+    Partner tools: little_oven_pizza -> http://[::1]:8083/little_oven_pizza ("Little Oven Pizza")
+      Before hosting: http://[::1]:8083/little_oven_pizza works only on this machine. Put the partner's https network URL in tools and link_labels, and its origin in allowed_peers, then build again. The tool name comes from the URL's path, so change the "How to work" line if the build then warns about it.
+    WARNING: partner_rules differs from templates/network.hocon. Copy it unchanged, with website_<read_action> replaced by the read action that gives the partner's link.
+    OK: these files are up to date:
+      - D:\OpenAgenticWeb\examples\guesthouse_agentified\tidewhistle_guesthouse.network.json
+      - D:\OpenAgenticWeb\examples\guesthouse_agentified\agent-mcp.json
+      - D:\OpenAgenticWeb\examples\guesthouse_agentified\.well-known\nsdeploy.json
+      - D:\OpenAgenticWeb\examples\guesthouse_agentified\.well-known\nsdeploy-agent.json
+      - D:\OpenAgenticWeb\examples\guesthouse_agentified\bridge\action-bridge.html
+      - D:\OpenAgenticWeb\examples\guesthouse_agentified\bridge\agent-manifest.json
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    Network: tidewhistle_guesthouse
+    Front agent: tidewhistle_assistant
+    Agents: 1
+      - tidewhistle_assistant: 4398 instruction chars (+1612 CRUSE context added by the runtime); tools: [http://localhost:8081/marrow_point_harbor_tours, http://[::1]:8083/little_oven_pizza]
+    Website tools from actions.agentTools: website_get_guesthouse_state, website_get_house_policies, website_search_rooms, website_quote_stay, website_fill_booking_form, website_look_up_booking, website_place_booking, website_cancel_booking
+      On this site's page, an agent gets the ones the page registers as local-only. Called from another site, it gets the ones bridge/bridge-actions.js shares with that site.
+    Added to every agent by the runtime: render_cruse
+    Bridge: bridge/action-bridge.html (shares the actions in bridge/bridge-actions.js with the callers they list)
+    Partner tools: marrow_point_harbor_tours -> http://localhost:8081/marrow_point_harbor_tours ("Marrow Point Harbor Tours")
+      Before hosting: http://localhost:8081/marrow_point_harbor_tours works only on this machine. Put the partner's https network URL in tools and link_labels, and its origin in allowed_peers, then build again. The tool name comes from the URL's path, so change the "How to work" line if the build then warns about it.
+    Partner tools: little_oven_pizza -> http://[::1]:8083/little_oven_pizza ("Little Oven Pizza")
+      Before hosting: http://[::1]:8083/little_oven_pizza works only on this machine. Put the partner's https network URL in tools and link_labels, and its origin in allowed_peers, then build again. The tool name comes from the URL's path, so change the "How to work" line if the build then warns about it.
+    WARNING: partner_rules differs from templates/network.hocon. Copy it unchanged, with website_<read_action> replaced by the read action that gives the partner's link.
+    OK: these files are up to date:
+      - D:\OpenAgenticWeb\examples\guesthouse_agentified\tidewhistle_guesthouse.network.json
+      - D:\OpenAgenticWeb\examples\guesthouse_agentified\agent-mcp.json
+      - D:\OpenAgenticWeb\examples\guesthouse_agentified\.well-known\nsdeploy.json
+      - D:\OpenAgenticWeb\examples\guesthouse_agentified\.well-known\nsdeploy-agent.json
+      - D:\OpenAgenticWeb\examples\guesthouse_agentified\bridge\action-bridge.html
+      - D:\OpenAgenticWeb\examples\guesthouse_agentified\bridge\agent-manifest.json
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    LinkingTest.checkRulesAndBuild (file:///D:/OpenAgenticWeb/tests/linking/linking.test.mjs:1002:12)
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async testExampleMatchesSkill (file:///D:/OpenAgenticWeb/tests/linking/linking.test.mjs:1029:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: L8 the tour site keeps the skill's runtime and rules, and builds clean
+not ok 60 - L8 the tour site keeps the skill's runtime and rules, and builds clean
+  ---
+  duration_ms: 6596.5802
+  type: 'test'
+  location: 'D:\\OpenAgenticWeb\\tests\\linking\\linking.test.mjs:1104:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Network: marrow_point_harbor_tours
+    Front agent: harbor_tours_assistant
+    Agents: 1
+      - harbor_tours_assistant: 4187 instruction chars (+1612 CRUSE context added by the runtime); tools: [http://127.0.0.1:8080/tidewhistle_guesthouse, http://[::1]:8083/little_oven_pizza]
+    Website tools from actions.agentTools: website_get_tours_state, website_get_good_to_know, website_find_departures, website_add_trip_to_basket, website_remove_trip_from_basket, website_reserve_basket, website_look_up_reservation, website_cancel_reservation, website_book_departure
+      On this site's page, an agent gets the ones the page registers as local-only. Called from another site, it gets the ones bridge/bridge-actions.js shares with that site.
+    Added to every agent by the runtime: render_cruse
+    Bridge: bridge/action-bridge.html (shares the actions in bridge/bridge-actions.js with the callers they list)
+    Partner tools: tidewhistle_guesthouse -> http://127.0.0.1:8080/tidewhistle_guesthouse ("Tidewhistle Guesthouse")
+      Before hosting: http://127.0.0.1:8080/tidewhistle_guesthouse works only on this machine. Put the partner's https network URL in tools and link_labels, and its origin in allowed_peers, then build again. The tool name comes from the URL's path, so change the "How to work" line if the build then warns about it.
+    Partner tools: little_oven_pizza -> http://[::1]:8083/little_oven_pizza ("Little Oven Pizza")
+      Before hosting: http://[::1]:8083/little_oven_pizza works only on this machine. Put the partner's https network URL in tools and link_labels, and its origin in allowed_peers, then build again. The tool name comes from the URL's path, so change the "How to work" line if the build then warns about it.
+    WARNING: partner_rules differs from templates/network.hocon. Copy it unchanged, with website_<read_action> replaced by the read action that gives the partner's link.
+    OK: these files are up to date:
+      - D:\OpenAgenticWeb\examples\harbor_tours_agentified\marrow_point_harbor_tours.network.json
+      - D:\OpenAgenticWeb\examples\harbor_tours_agentified\agent-mcp.json
+      - D:\OpenAgenticWeb\examples\harbor_tours_agentified\.well-known\nsdeploy.json
+      - D:\OpenAgenticWeb\examples\harbor_tours_agentified\.well-known\nsdeploy-agent.json
+      - D:\OpenAgenticWeb\examples\harbor_tours_agentified\bridge\action-bridge.html
+      - D:\OpenAgenticWeb\examples\harbor_tours_agentified\bridge\agent-manifest.json
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    Network: marrow_point_harbor_tours
+    Front agent: harbor_tours_assistant
+    Agents: 1
+      - harbor_tours_assistant: 4187 instruction chars (+1612 CRUSE context added by the runtime); tools: [http://127.0.0.1:8080/tidewhistle_guesthouse, http://[::1]:8083/little_oven_pizza]
+    Website tools from actions.agentTools: website_get_tours_state, website_get_good_to_know, website_find_departures, website_add_trip_to_basket, website_remove_trip_from_basket, website_reserve_basket, website_look_up_reservation, website_cancel_reservation, website_book_departure
+      On this site's page, an agent gets the ones the page registers as local-only. Called from another site, it gets the ones bridge/bridge-actions.js shares with that site.
+    Added to every agent by the runtime: render_cruse
+    Bridge: bridge/action-bridge.html (shares the actions in bridge/bridge-actions.js with the callers they list)
+    Partner tools: tidewhistle_guesthouse -> http://127.0.0.1:8080/tidewhistle_guesthouse ("Tidewhistle Guesthouse")
+      Before hosting: http://127.0.0.1:8080/tidewhistle_guesthouse works only on this machine. Put the partner's https network URL in tools and link_labels, and its origin in allowed_peers, then build again. The tool name comes from the URL's path, so change the "How to work" line if the build then warns about it.
+    Partner tools: little_oven_pizza -> http://[::1]:8083/little_oven_pizza ("Little Oven Pizza")
+      Before hosting: http://[::1]:8083/little_oven_pizza works only on this machine. Put the partner's https network URL in tools and link_labels, and its origin in allowed_peers, then build again. The tool name comes from the URL's path, so change the "How to work" line if the build then warns about it.
+    WARNING: partner_rules differs from templates/network.hocon. Copy it unchanged, with website_<read_action> replaced by the read action that gives the partner's link.
+    OK: these files are up to date:
+      - D:\OpenAgenticWeb\examples\harbor_tours_agentified\marrow_point_harbor_tours.network.json
+      - D:\OpenAgenticWeb\examples\harbor_tours_agentified\agent-mcp.json
+      - D:\OpenAgenticWeb\examples\harbor_tours_agentified\.well-known\nsdeploy.json
+      - D:\OpenAgenticWeb\examples\harbor_tours_agentified\.well-known\nsdeploy-agent.json
+      - D:\OpenAgenticWeb\examples\harbor_tours_agentified\bridge\action-bridge.html
+      - D:\OpenAgenticWeb\examples\harbor_tours_agentified\bridge\agent-manifest.json
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    LinkingTest.checkRulesAndBuild (file:///D:/OpenAgenticWeb/tests/linking/linking.test.mjs:1002:12)
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async testExampleMatchesSkill (file:///D:/OpenAgenticWeb/tests/linking/linking.test.mjs:1029:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: L8 the pizza site keeps the skill's runtime and rules, and builds clean
+not ok 61 - L8 the pizza site keeps the skill's runtime and rules, and builds clean
+  ---
+  duration_ms: 248.455
+  type: 'test'
+  location: 'D:\\OpenAgenticWeb\\tests\\linking\\linking.test.mjs:1105:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Network: little_oven_pizza
+    Front agent: little_oven_assistant
+    Agents: 1
+      - little_oven_assistant: 4230 instruction chars (+1612 CRUSE context added by the runtime); tools: [http://127.0.0.1:8080/tidewhistle_guesthouse, http://localhost:8081/marrow_point_harbor_tours]
+    Website tools from actions.agentTools: website_get_restaurant_state, website_add_to_cart, website_set_cart_quantities, website_place_demo_order, website_place_order
+      On this site's page, an agent gets the ones the page registers as local-only. Called from another site, it gets the ones bridge/bridge-actions.js shares with that site.
+    Added to every agent by the runtime: render_cruse
+    Bridge: bridge/action-bridge.html (shares the actions in bridge/bridge-actions.js with the callers they list)
+    Partner tools: tidewhistle_guesthouse -> http://127.0.0.1:8080/tidewhistle_guesthouse ("Tidewhistle Guesthouse")
+      Before hosting: http://127.0.0.1:8080/tidewhistle_guesthouse works only on this machine. Put the partner's https network URL in tools and link_labels, and its origin in allowed_peers, then build again. The tool name comes from the URL's path, so change the "How to work" line if the build then warns about it.
+    Partner tools: marrow_point_harbor_tours -> http://localhost:8081/marrow_point_harbor_tours ("Marrow Point Harbor Tours")
+      Before hosting: http://localhost:8081/marrow_point_harbor_tours works only on this machine. Put the partner's https network URL in tools and link_labels, and its origin in allowed_peers, then build again. The tool name comes from the URL's path, so change the "How to work" line if the build then warns about it.
+    WARNING: partner_rules differs from templates/network.hocon. Copy it unchanged, with website_<read_action> replaced by the read action that gives the partner's link.
+    OK: these files are up to date:
+      - D:\OpenAgenticWeb\examples\marrow_point_pizza_agentified\little_oven_pizza.network.json
+      - D:\OpenAgenticWeb\examples\marrow_point_pizza_agentified\agent-mcp.json
+      - D:\OpenAgenticWeb\examples\marrow_point_pizza_agentified\.well-known\nsdeploy.json
+      - D:\OpenAgenticWeb\examples\marrow_point_pizza_agentified\.well-known\nsdeploy-agent.json
+      - D:\OpenAgenticWeb\examples\marrow_point_pizza_agentified\bridge\action-bridge.html
+      - D:\OpenAgenticWeb\examples\marrow_point_pizza_agentified\bridge\agent-manifest.json
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    Network: little_oven_pizza
+    Front agent: little_oven_assistant
+    Agents: 1
+      - little_oven_assistant: 4230 instruction chars (+1612 CRUSE context added by the runtime); tools: [http://127.0.0.1:8080/tidewhistle_guesthouse, http://localhost:8081/marrow_point_harbor_tours]
+    Website tools from actions.agentTools: website_get_restaurant_state, website_add_to_cart, website_set_cart_quantities, website_place_demo_order, website_place_order
+      On this site's page, an agent gets the ones the page registers as local-only. Called from another site, it gets the ones bridge/bridge-actions.js shares with that site.
+    Added to every agent by the runtime: render_cruse
+    Bridge: bridge/action-bridge.html (shares the actions in bridge/bridge-actions.js with the callers they list)
+    Partner tools: tidewhistle_guesthouse -> http://127.0.0.1:8080/tidewhistle_guesthouse ("Tidewhistle Guesthouse")
+      Before hosting: http://127.0.0.1:8080/tidewhistle_guesthouse works only on this machine. Put the partner's https network URL in tools and link_labels, and its origin in allowed_peers, then build again. The tool name comes from the URL's path, so change the "How to work" line if the build then warns about it.
+    Partner tools: marrow_point_harbor_tours -> http://localhost:8081/marrow_point_harbor_tours ("Marrow Point Harbor Tours")
+      Before hosting: http://localhost:8081/marrow_point_harbor_tours works only on this machine. Put the partner's https network URL in tools and link_labels, and its origin in allowed_peers, then build again. The tool name comes from the URL's path, so change the "How to work" line if the build then warns about it.
+    WARNING: partner_rules differs from templates/network.hocon. Copy it unchanged, with website_<read_action> replaced by the read action that gives the partner's link.
+    OK: these files are up to date:
+      - D:\OpenAgenticWeb\examples\marrow_point_pizza_agentified\little_oven_pizza.network.json
+      - D:\OpenAgenticWeb\examples\marrow_point_pizza_agentified\agent-mcp.json
+      - D:\OpenAgenticWeb\examples\marrow_point_pizza_agentified\.well-known\nsdeploy.json
+      - D:\OpenAgenticWeb\examples\marrow_point_pizza_agentified\.well-known\nsdeploy-agent.json
+      - D:\OpenAgenticWeb\examples\marrow_point_pizza_agentified\bridge\action-bridge.html
+      - D:\OpenAgenticWeb\examples\marrow_point_pizza_agentified\bridge\agent-manifest.json
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    LinkingTest.checkRulesAndBuild (file:///D:/OpenAgenticWeb/tests/linking/linking.test.mjs:1002:12)
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async testExampleMatchesSkill (file:///D:/OpenAgenticWeb/tests/linking/linking.test.mjs:1029:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: L8 the caller test site keeps the template's rules and builds clean
+not ok 62 - L8 the caller test site keeps the template's rules and builds clean
+  ---
+  duration_ms: 149.1228
+  type: 'test'
+  location: 'D:\\OpenAgenticWeb\\tests\\linking\\linking.test.mjs:1106:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Network: marrow_point_visitor_desk
+    Front agent: visitor_desk_assistant
+    Agents: 1
+      - visitor_desk_assistant: 3915 instruction chars (+1612 CRUSE context added by the runtime); tools: [http://127.0.0.1:8080/tidewhistle_guesthouse]
+    Website tools from actions.agentTools: website_get_desk_state
+      On this site's page, an agent gets the ones the page registers as local-only. Called from another site, it gets none, because no bridge shares actions.
+    Added to every agent by the runtime: render_cruse
+    Bridge: bridge/action-bridge.html (shares no actions)
+    Partner tools: tidewhistle_guesthouse -> http://127.0.0.1:8080/tidewhistle_guesthouse ("Tidewhistle Guesthouse")
+      Before hosting: http://127.0.0.1:8080/tidewhistle_guesthouse works only on this machine. Put the partner's https network URL in tools and link_labels, and its origin in allowed_peers, then build again. The tool name comes from the URL's path, so change the "How to work" line if the build then warns about it.
+    WARNING: partner_rules differs from templates/network.hocon. Copy it unchanged, with website_<read_action> replaced by the read action that gives the partner's link.
+    OK: these files are up to date:
+      - D:\OpenAgenticWeb\tests\linking\fixtures\caller_site\marrow_point_visitor_desk.network.json
+      - D:\OpenAgenticWeb\tests\linking\fixtures\caller_site\agent-mcp.json
+      - D:\OpenAgenticWeb\tests\linking\fixtures\caller_site\.well-known\nsdeploy.json
+      - D:\OpenAgenticWeb\tests\linking\fixtures\caller_site\.well-known\nsdeploy-agent.json
+      - D:\OpenAgenticWeb\tests\linking\fixtures\caller_site\bridge\action-bridge.html
+      - D:\OpenAgenticWeb\tests\linking\fixtures\caller_site\bridge\agent-manifest.json
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    Network: marrow_point_visitor_desk
+    Front agent: visitor_desk_assistant
+    Agents: 1
+      - visitor_desk_assistant: 3915 instruction chars (+1612 CRUSE context added by the runtime); tools: [http://127.0.0.1:8080/tidewhistle_guesthouse]
+    Website tools from actions.agentTools: website_get_desk_state
+      On this site's page, an agent gets the ones the page registers as local-only. Called from another site, it gets none, because no bridge shares actions.
+    Added to every agent by the runtime: render_cruse
+    Bridge: bridge/action-bridge.html (shares no actions)
+    Partner tools: tidewhistle_guesthouse -> http://127.0.0.1:8080/tidewhistle_guesthouse ("Tidewhistle Guesthouse")
+      Before hosting: http://127.0.0.1:8080/tidewhistle_guesthouse works only on this machine. Put the partner's https network URL in tools and link_labels, and its origin in allowed_peers, then build again. The tool name comes from the URL's path, so change the "How to work" line if the build then warns about it.
+    WARNING: partner_rules differs from templates/network.hocon. Copy it unchanged, with website_<read_action> replaced by the read action that gives the partner's link.
+    OK: these files are up to date:
+      - D:\OpenAgenticWeb\tests\linking\fixtures\caller_site\marrow_point_visitor_desk.network.json
+      - D:\OpenAgenticWeb\tests\linking\fixtures\caller_site\agent-mcp.json
+      - D:\OpenAgenticWeb\tests\linking\fixtures\caller_site\.well-known\nsdeploy.json
+      - D:\OpenAgenticWeb\tests\linking\fixtures\caller_site\.well-known\nsdeploy-agent.json
+      - D:\OpenAgenticWeb\tests\linking\fixtures\caller_site\bridge\action-bridge.html
+      - D:\OpenAgenticWeb\tests\linking\fixtures\caller_site\bridge\agent-manifest.json
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    LinkingTest.checkRulesAndBuild (file:///D:/OpenAgenticWeb/tests/linking/linking.test.mjs:1002:12)
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async testFixtureMatchesSkill (file:///D:/OpenAgenticWeb/tests/linking/linking.test.mjs:1089:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: L8 the partner test site keeps the template's rules and builds clean
+not ok 63 - L8 the partner test site keeps the template's rules and builds clean
+  ---
+  duration_ms: 153.3284
+  type: 'test'
+  location: 'D:\\OpenAgenticWeb\\tests\\linking\\linking.test.mjs:1107:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Network: marrow_point_harbor_tours
+    Front agent: harbor_tours_assistant
+    Agents: 1
+      - harbor_tours_assistant: 3893 instruction chars (+1612 CRUSE context added by the runtime); tools: [http://127.0.0.1:8080/tidewhistle_guesthouse]
+    Website tools from actions.agentTools: website_get_tour_state
+      On this site's page, an agent gets the ones the page registers as local-only. Called from another site, it gets none, because no bridge shares actions.
+    Added to every agent by the runtime: render_cruse
+    Bridge: bridge/action-bridge.html (shares no actions)
+    Partner tools: tidewhistle_guesthouse -> http://127.0.0.1:8080/tidewhistle_guesthouse ("Tidewhistle Guesthouse")
+      Before hosting: http://127.0.0.1:8080/tidewhistle_guesthouse works only on this machine. Put the partner's https network URL in tools and link_labels, and its origin in allowed_peers, then build again. The tool name comes from the URL's path, so change the "How to work" line if the build then warns about it.
+    WARNING: partner_rules differs from templates/network.hocon. Copy it unchanged, with website_<read_action> replaced by the read action that gives the partner's link.
+    OK: these files are up to date:
+      - D:\OpenAgenticWeb\tests\linking\fixtures\partner_site\marrow_point_harbor_tours.network.json
+      - D:\OpenAgenticWeb\tests\linking\fixtures\partner_site\agent-mcp.json
+      - D:\OpenAgenticWeb\tests\linking\fixtures\partner_site\.well-known\nsdeploy.json
+      - D:\OpenAgenticWeb\tests\linking\fixtures\partner_site\.well-known\nsdeploy-agent.json
+      - D:\OpenAgenticWeb\tests\linking\fixtures\partner_site\bridge\action-bridge.html
+      - D:\OpenAgenticWeb\tests\linking\fixtures\partner_site\bridge\agent-manifest.json
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    Network: marrow_point_harbor_tours
+    Front agent: harbor_tours_assistant
+    Agents: 1
+      - harbor_tours_assistant: 3893 instruction chars (+1612 CRUSE context added by the runtime); tools: [http://127.0.0.1:8080/tidewhistle_guesthouse]
+    Website tools from actions.agentTools: website_get_tour_state
+      On this site's page, an agent gets the ones the page registers as local-only. Called from another site, it gets none, because no bridge shares actions.
+    Added to every agent by the runtime: render_cruse
+    Bridge: bridge/action-bridge.html (shares no actions)
+    Partner tools: tidewhistle_guesthouse -> http://127.0.0.1:8080/tidewhistle_guesthouse ("Tidewhistle Guesthouse")
+      Before hosting: http://127.0.0.1:8080/tidewhistle_guesthouse works only on this machine. Put the partner's https network URL in tools and link_labels, and its origin in allowed_peers, then build again. The tool name comes from the URL's path, so change the "How to work" line if the build then warns about it.
+    WARNING: partner_rules differs from templates/network.hocon. Copy it unchanged, with website_<read_action> replaced by the read action that gives the partner's link.
+    OK: these files are up to date:
+      - D:\OpenAgenticWeb\tests\linking\fixtures\partner_site\marrow_point_harbor_tours.network.json
+      - D:\OpenAgenticWeb\tests\linking\fixtures\partner_site\agent-mcp.json
+      - D:\OpenAgenticWeb\tests\linking\fixtures\partner_site\.well-known\nsdeploy.json
+      - D:\OpenAgenticWeb\tests\linking\fixtures\partner_site\.well-known\nsdeploy-agent.json
+      - D:\OpenAgenticWeb\tests\linking\fixtures\partner_site\bridge\action-bridge.html
+      - D:\OpenAgenticWeb\tests\linking\fixtures\partner_site\bridge\agent-manifest.json
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    LinkingTest.checkRulesAndBuild (file:///D:/OpenAgenticWeb/tests/linking/linking.test.mjs:1002:12)
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async testFixtureMatchesSkill (file:///D:/OpenAgenticWeb/tests/linking/linking.test.mjs:1089:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..63
+# tests 63
+# suites 0
+# pass 55
+# fail 5
+# cancelled 0
+# skipped 3
+# todo 0
+# duration_ms 20064.8197

@@ -1,0 +1,3 @@
+{"time":1795333933073,"method":"GET","path":"/","status":200,"origin":null,"authorization":false,"cookies":[]}
+{"time":1795333933146,"method":"GET","path":"/agent-manifest.json","status":200,"origin":"http://probe.example","authorization":false,"cookies":[]}
+{"time":1795333933181,"method":"GET","path":"/little_oven_pizza.network.json","status":200,"origin":"http://probe.example","authorization":false,"cookies":[]}

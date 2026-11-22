@@ -1,0 +1,20 @@
+Network: little_oven_pizza
+Front agent: little_oven_assistant
+Agents: 1
+  - little_oven_assistant: 4230 instruction chars (+1612 CRUSE context added by the runtime); tools: [http://127.0.0.1:8080/tidewhistle_guesthouse, http://localhost:8081/marrow_point_harbor_tours]
+Website tools from actions.agentTools: website_get_restaurant_state, website_add_to_cart, website_set_cart_quantities, website_place_demo_order, website_place_order
+  On this site's page, an agent gets the ones the page registers as local-only. Called from another site, it gets the ones bridge/bridge-actions.js shares with that site.
+Added to every agent by the runtime: render_cruse
+Bridge: bridge/action-bridge.html (shares the actions in bridge/bridge-actions.js with the callers they list)
+Partner tools: tidewhistle_guesthouse -> http://127.0.0.1:8080/tidewhistle_guesthouse ("Tidewhistle Guesthouse")
+  Before hosting: http://127.0.0.1:8080/tidewhistle_guesthouse works only on this machine. Put the partner's https network URL in tools and link_labels, and its origin in allowed_peers, then build again. The tool name comes from the URL's path, so change the "How to work" line if the build then warns about it.
+Partner tools: marrow_point_harbor_tours -> http://localhost:8081/marrow_point_harbor_tours ("Marrow Point Harbor Tours")
+  Before hosting: http://localhost:8081/marrow_point_harbor_tours works only on this machine. Put the partner's https network URL in tools and link_labels, and its origin in allowed_peers, then build again. The tool name comes from the URL's path, so change the "How to work" line if the build then warns about it.
+WARNING: partner_rules differs from templates/network.hocon. Copy it unchanged, with website_<read_action> replaced by the read action that gives the partner's link.
+OK: these files are up to date:
+  - D:\Conveyor\_baseline\marrow_point_pizza_agentified\little_oven_pizza.network.json
+  - D:\Conveyor\_baseline\marrow_point_pizza_agentified\agent-mcp.json
+  - D:\Conveyor\_baseline\marrow_point_pizza_agentified\.well-known\nsdeploy.json
+  - D:\Conveyor\_baseline\marrow_point_pizza_agentified\.well-known\nsdeploy-agent.json
+  - D:\Conveyor\_baseline\marrow_point_pizza_agentified\bridge\action-bridge.html
+  - D:\Conveyor\_baseline\marrow_point_pizza_agentified\bridge\agent-manifest.json
