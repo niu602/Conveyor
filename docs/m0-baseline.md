@@ -141,6 +141,19 @@ chain, so it must run before M3 sign-off. Output: `raw-m0-chrome-linking.txt`.
 | Linking baseline recorded in `docs/` | Node half recorded (55 pass / 5 known L8 fails / 3 documented skips); Chrome half blocked by port 8080, logged |
 | Official clone untouched | verified with `git status` |
 
+## Repository
+
+| Check | Result |
+| --- | --- |
+| URL | <https://github.com/niu602/Conveyor> |
+| First commit | `55b39e97081aadfd3e9adcd8c7b1ce141f3bbee5` |
+| Visibility | `private=false`, default branch `main` (GitHub API) |
+| License detected | `Apache-2.0` (GitHub API) |
+| Clone test | `git clone --depth 1` → exit 0, 10 tracked files present |
+| Secret scan | no `sk-…`, `AKIA…` or `ghp_…` strings in any tracked file |
+
+Push transcript: `raw-m0-push.txt`.
+
 ## Reproduce
 
 ```shell
