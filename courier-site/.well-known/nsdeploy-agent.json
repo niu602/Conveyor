@@ -1,0 +1,7 @@
+{
+  "available": false,
+  "front_man": "courier_desk_assistant",
+  "network": "courier_dispatch",
+  "protocol": "nsdeploy-agent-mcp/v1",
+  "reason": "This is a static bundle; a public MCP facade requires an application host."
+}

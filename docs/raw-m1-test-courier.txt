@@ -1,0 +1,191 @@
+TAP version 13
+# Subtest: the network is valid and calls no partner
+ok 1 - the network is valid and calls no partner
+  ---
+  duration_ms: 5.141
+  type: 'test'
+  ...
+# Subtest: every agent tool is registered by the page or the bridge
+ok 2 - every agent tool is registered by the page or the bridge
+  ---
+  duration_ms: 5.3588
+  type: 'test'
+  ...
+# Subtest: the read action runs as a model tool within the budget
+ok 3 - the read action runs as a model tool within the budget
+  ---
+  duration_ms: 19.3595
+  type: 'test'
+  ...
+# Each model call sends 5857 characters of system prompt and 3837 of tool definitions.
+# Subtest: the read gives the fee table, the rules and each page fact
+ok 4 - the read gives the fee table, the rules and each page fact
+  ---
+  duration_ms: 2.677
+  type: 'test'
+  ...
+# Subtest: each quote matches a fee worked out by hand
+ok 5 - each quote matches a fee worked out by hand
+  ---
+  duration_ms: 2.8397
+  type: 'test'
+  ...
+# Subtest: the desk refuses a zone or parcel it cannot take
+ok 6 - the desk refuses a zone or parcel it cannot take
+  ---
+  duration_ms: 1.1558
+  type: 'test'
+  ...
+# Subtest: a lookup reads one job and refuses a near miss
+ok 7 - a lookup reads one job and refuses a near miss
+  ---
+  duration_ms: 1.1572
+  type: 'test'
+  ...
+# Subtest: the cancellation dialog shows the job and only its confirm confirms
+ok 8 - the cancellation dialog shows the job and only its confirm confirms
+  ---
+  duration_ms: 17.5814
+  type: 'test'
+  ...
+# Subtest: each refused cancellation opens no dialog
+ok 9 - each refused cancellation opens no dialog
+  ---
+  duration_ms: 1.3747
+  type: 'test'
+  ...
+# Subtest: an approved cancellation matches the page's own form
+ok 10 - an approved cancellation matches the page's own form
+  ---
+  duration_ms: 1.5435
+  type: 'test'
+  ...
+# Subtest: a stale status changes nothing
+ok 11 - a stale status changes nothing
+  ---
+  duration_ms: 0.3307
+  type: 'test'
+  ...
+# Subtest: the irreversible tool needs a confirmation callback
+ok 12 - the irreversible tool needs a confirmation callback
+  ---
+  duration_ms: 2.7866
+  type: 'test'
+  ...
+# Subtest: the bridge shares reads and one windowed write with the pizza site
+ok 13 - the bridge shares reads and one windowed write with the pizza site
+  ---
+  duration_ms: 1.0038
+  type: 'test'
+  ...
+# Subtest: no personal detail leaves the desk
+ok 14 - no personal detail leaves the desk
+  ---
+  duration_ms: 1.4391
+  type: 'test'
+  ...
+# Subtest: a partner's action gets the runtime's dialog
+ok 15 - a partner's action gets the runtime's dialog
+  ---
+  duration_ms: 0.1511
+  type: 'test'
+  ...
+# Subtest: a bundled form runs nothing
+ok 16 - a bundled form runs nothing
+  ---
+  duration_ms: 0.149
+  type: 'test'
+  ...
+# Subtest: other bundles get the runtime's dialog
+ok 17 - other bundles get the runtime's dialog
+  ---
+  duration_ms: 0.1436
+  type: 'test'
+  ...
+# Subtest: the consent card takes focus, then gives it back
+ok 18 - the consent card takes focus, then gives it back
+  ---
+  duration_ms: 0.24
+  type: 'test'
+  ...
+# Subtest: the consent card leaves focus in the page's own form
+ok 19 - the consent card leaves focus in the page's own form
+  ---
+  duration_ms: 0.1019
+  type: 'test'
+  ...
+# Subtest: the greeting promises only what the desk does
+ok 20 - the greeting promises only what the desk does
+  ---
+  duration_ms: 0.1004
+  type: 'test'
+  ...
+# Subtest: the intake answers only the origins it serves
+ok 21 - the intake answers only the origins it serves
+  ---
+  duration_ms: 21.1546
+  type: 'test'
+  ...
+# Subtest: a quote prices the parcel and holds it for fifteen minutes
+ok 22 - a quote prices the parcel and holds it for fifteen minutes
+  ---
+  duration_ms: 1.303
+  type: 'test'
+  ...
+# Subtest: the same idempotency key lands one job, however often it is sent
+ok 23 - the same idempotency key lands one job, however often it is sent
+  ---
+  duration_ms: 2.4853
+  type: 'test'
+  ...
+# Subtest: two writers racing on one key still leave one job
+ok 24 - two writers racing on one key still leave one job
+  ---
+  duration_ms: 1.0918
+  type: 'test'
+  ...
+# Subtest: the read-only check refuses what the dispatch would refuse, and records nothing
+ok 25 - the read-only check refuses what the dispatch would refuse, and records nothing
+  ---
+  duration_ms: 1.2849
+  type: 'test'
+  ...
+# Subtest: the dispatch refuses a changed fee, an expired quote and bad details
+ok 26 - the dispatch refuses a changed fee, an expired quote and bad details
+  ---
+  duration_ms: 2.4836
+  type: 'test'
+  ...
+# Subtest: a job receipt carries no name, phone, address or note
+ok 27 - a job receipt carries no name, phone, address or note
+  ---
+  duration_ms: 2.5123
+  type: 'test'
+  ...
+# Subtest: a job moves forward one step and cancels only before pickup
+ok 28 - a job moves forward one step and cancels only before pickup
+  ---
+  duration_ms: 2.0299
+  type: 'test'
+  ...
+# Subtest: the D1 store enforces the key with the same shape as the memory store
+ok 29 - the D1 store enforces the key with the same shape as the memory store
+  ---
+  duration_ms: 0.6996
+  type: 'test'
+  ...
+# Subtest: the fee table's boundaries are the ones the desk publishes
+ok 30 - the fee table's boundaries are the ones the desk publishes
+  ---
+  duration_ms: 0.4467
+  type: 'test'
+  ...
+1..30
+# tests 30
+# suites 0
+# pass 30
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 173.0902

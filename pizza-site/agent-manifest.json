@@ -1,0 +1,85 @@
+{
+  "brand": "Little Oven Pizza Assistant",
+  "networks": [
+    {
+      "name": "little_oven_pizza",
+      "front_man": "little_oven_assistant",
+      "hocon": "./little_oven_pizza.network.json",
+      "description": "Ask about our pizzas, allergens, address and opening hours, fill your cart, place a demo order and hand a delivery to Conveyor Courier.",
+      "tags": [
+        "agentified-website"
+      ],
+      "sample_queries": [
+        "Which pizzas are vegan or gluten-free, and what allergens do they have?",
+        "Add two Margherita pizzas and one Roasted Veg to my cart.",
+        "Order one Pepperoni for pickup as soon as possible. My name is Sam Lee.",
+        "Is there somewhere to stay nearby, or a boat trip we could take?",
+        "Order two Margherita pizzas and ask the courier what it costs to run them to North town.",
+        "Can I book a table for Saturday or use a discount code?"
+      ]
+    }
+  ],
+  "llm_router": {
+    "base_url": "https://api.otari.ai/api/v1",
+    "mock": false,
+    "byok_router": "https://api.otari.ai/api/v1"
+  },
+  "allowed_peers": [
+    "http://127.0.0.1:8080",
+    "http://localhost:8081",
+    "http://localhost:8085"
+  ],
+  "peer_policy": {
+    "mode": "closed",
+    "deny_origins": [],
+    "note": "Calls only the partner sites in allowed_peers, after the visitor agrees, plus page-local actions."
+  },
+  "agent_mcp": {
+    "protocol": "nsdeploy-agent-mcp/v1",
+    "network": "little_oven_pizza",
+    "front_man": "little_oven_assistant",
+    "available": false,
+    "reason": "This is a static bundle; a public MCP facade requires an application host."
+  },
+  "theme": {
+    "primary": "#a63220"
+  },
+  "linking": {
+    "protocol": "nsdeploy-link/v1",
+    "exports": [
+      {
+        "network": "little_oven_pizza",
+        "front_man": "little_oven_assistant",
+        "aliases": [
+          "little_oven_pizza",
+          "little_oven_assistant"
+        ],
+        "url": "little_oven_pizza"
+      }
+    ],
+    "imports": [],
+    "link_updates": {
+      "mode": "browser-local"
+    }
+  },
+  "deployment": {
+    "mode": "static",
+    "self_contained_runtime": true,
+    "browser_mock": false,
+    "direct_byok": true,
+    "direct_mcp_requires_cors": true,
+    "public_mcp_facade": false
+  },
+  "actions": {
+    "version": 1,
+    "module": "./site-actions.js",
+    "bridge": "./bridge/action-bridge.html",
+    "agentTools": [
+      "get_restaurant_state",
+      "add_to_cart",
+      "set_cart_quantities",
+      "place_demo_order",
+      "place_order"
+    ]
+  }
+}

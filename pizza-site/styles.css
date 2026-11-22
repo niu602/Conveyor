@@ -1,0 +1,153 @@
+:root {
+  color-scheme: light;
+  font-family: system-ui, sans-serif;
+  color: #29291f;
+  background: #faf7ef;
+  line-height: 1.5;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+header, main, footer { max-width: 1100px; margin: auto; padding: 24px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid #ded9ca; }
+a { color: inherit; text-underline-offset: 4px; }
+.brand { font-size: 1.4rem; font-weight: 800; text-decoration: none; }
+.brand span { color: #a63220; }
+nav { display: flex; gap: 24px; }
+.intro { padding: 40px 0; }
+.eyebrow { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #a63220; }
+h1 { font-family: Georgia, serif; font-size: clamp(2.5rem, 6vw, 4rem); line-height: 1.1; margin: 16px 0; }
+h2 { font-family: Georgia, serif; font-size: 1.8rem; margin: 0 0 12px; }
+h3 { margin: 0; font-size: 1.1rem; }
+p { margin: 12px 0; }
+.demo-note, small { color: #625c50; font-size: .875rem; }
+.ordering-layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+.menu-items { margin-top: 24px; }
+.menu-item { border-top: 1px solid #ded9ca; padding: 22px 0; }
+.item-heading, .item-actions, .cart-line, .total { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.item-heading { align-items: baseline; }
+.dietary { color: #3d6333; font-size: .875rem; font-weight: 600; }
+button, input, select, textarea { font: inherit; }
+button { border: 1px solid #a63220; border-radius: 6px; padding: 10px 16px; background: #a63220; color: white; cursor: pointer; }
+button:hover { background: #822718; }
+button:disabled { background: #e8e3d8; color: #625c50; border-color: #d8d2c6; cursor: default; }
+:focus-visible { outline: 3px solid #216c99; outline-offset: 3px; }
+.cart { padding: 24px; border: 1px solid #ded9ca; border-radius: 12px; background: white; }
+.cart-items { list-style: none; margin: 0; padding: 0; }
+.cart-items li { padding: 16px 0; border-bottom: 1px solid #ded9ca; }
+.quantity-controls { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+.quantity-controls button { padding: 6px 12px; min-width: 36px; }
+.quantity-controls .remove { margin-left: auto; background: transparent; border: 0; color: #a63220; text-decoration: underline; }
+.total { font-size: 1.15rem; padding: 12px 0; }
+label { display: block; font-weight: 600; margin: 16px 0 6px; }
+input, select, textarea { width: 100%; padding: 10px; border: 1px solid #aaa393; border-radius: 5px; background: white; color: inherit; }
+textarea { resize: vertical; }
+small { display: block; margin-top: 6px; }
+#place-order { width: 100%; margin-top: 24px; }
+.visit { margin-top: 32px; }
+.confirmation { margin-top: 32px; padding: 24px; border: 1px solid #7e946e; border-radius: 12px; background: #eff4e9; overflow-wrap: anywhere; }
+footer { margin-top: 32px; font-size: .875rem; color: #625c50; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+[hidden] { display: none !important; }
+@media (max-width: 720px) {
+  header, main, footer { padding: 20px; }
+  header { align-items: start; }
+  nav { gap: 12px; flex-wrap: wrap; }
+  .ordering-layout { grid-template-columns: 1fr; gap: 24px; }
+  .intro { padding: 24px 0; }
+}
+
+/* Assistant layout, from the agentify-website skill, in the site's colors. */
+.assistant { margin-top: 48px; }
+
+/* The runtime reads these variables for its chat, settings and agent panels.
+   The chat background below also uses --ns-bg. White text sits on --ns-primary (the
+   visitor's messages, Send, and the chat form and settings buttons) and on --ns-accent
+   (Send while a turn is steered), so both use the site's dark reds.
+   --ns-accent also underlines the chat header. */
+#agent-app {
+  --ns-font: system-ui, sans-serif;
+  --ns-bg: #ffffff;
+  --ns-fg: #29291f;
+  --ns-primary: #a63220;
+  --ns-accent: #822718;
+  --ns-border: #ded9ca;
+  --ns-panelbg: #ffffff;
+  --ns-msgbg: #faf7ef;
+  --ns-muted: #625c50;
+}
+
+.assistant-panels {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 240px;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+/* Set the height once the runtime has mounted the chat, so a failed load leaves no
+   empty box. */
+#agent-app.ns-composed-app [data-ns-slot="chat"] { height: 720px; }
+/* The runtime gives the chat no background of its own. Keep --ns-msgbg different from
+   --ns-bg, or bot replies lose their bubble. */
+#agent-app .ns-chat { background: var(--ns-bg); }
+
+/* Site-wide form rules often stretch the runtime's own controls. Undo them here. */
+#agent-app input[type="checkbox"],
+#agent-app input[type="radio"] { width: auto; }
+#agent-app .ns-header { flex-wrap: wrap; }
+/* Site label rules add margins and bold text, and the inputs inside the labels inherit
+   the weight. */
+#agent-app .ns-settings-body label { margin: 4px 0; font-weight: 400; }
+/* Chat forms label radio groups with a legend, so site legend fonts would reach them. */
+#agent-app .ns-w-label { font-family: inherit; }
+/* Site label rules add margins to chat form fields and make their options bold. */
+#agent-app .ns-widget label { margin: 0; }
+#agent-app .ns-w-radio label,
+#agent-app .ns-w-multi label,
+#agent-app .ns-w-toggle { font-weight: 400; }
+/* The runtime sizes radio and multi-choice options but not the checkbox label. */
+#agent-app .ns-w-toggle { font-size: 13px; }
+/* The runtime spaces its buttons with gap. A site's button margin pushes Send below the input. */
+#agent-app button { margin: 0; }
+/* Chat choices are buttons with a light background. A site's button color can hide their
+   titles. */
+#agent-app .ns-w-choice { color: var(--ns-fg); }
+/* A site's button:hover background also reaches the runtime's plain buttons, behind
+   their dark text. Keep the runtime's own backgrounds. */
+#agent-app .ns-devtoggle:not(.on):hover,
+#agent-app .ns-modal-close:hover { background: transparent; }
+#agent-app .ns-w-choice:disabled:hover { background: #fafbfc; }
+/* The runtime's message rule hides the partner consent card's own background, and its
+   Decline label then has too little contrast. */
+#agent-app .ns-consent { background: #fffbeb; }
+/* While a consent card waits, the status line above it already says "Contacting", though
+   nothing has been sent. Hide it until the visitor answers. */
+#agent-app .ns-msgs:has(.ns-consent-actions) > .ns-turn-status { display: none; }
+/* Long links in a reply would run out of the bubble on a phone. "anywhere" would also
+   let the consent card's buttons shrink and split their labels. */
+#agent-app .ns-msg { overflow-wrap: break-word; }
+/* On a phone the consent card is too narrow for its three buttons in one row, and
+   "Always allow" breaks onto two lines. Keep each label whole and wrap the row. */
+#agent-app .ns-consent-actions { flex-wrap: wrap; }
+#agent-app .ns-consent-actions button { white-space: nowrap; }
+
+/* site.js and the runtime add their confirmation dialogs to <body>, outside #agent-app.
+   Site h2 rules reach the heading, and the two buttons touch. A right margin keeps
+   wrapped buttons lined up on the left. */
+body > dialog h2 { margin: 0 0 12px; font: 700 1.25em system-ui, sans-serif; }
+body > dialog button { margin-right: 8px; }
+/* site.js's dialog: the details in two columns, and a plain decline button, so the two
+   choices do not look the same. */
+.assistant-review { max-width: 640px; width: 85%; max-height: 85vh; overflow: auto; border: 1px solid #888; border-radius: 12px; padding: 24px; font: 16px system-ui, sans-serif; }
+.assistant-review dl { display: grid; grid-template-columns: fit-content(40%) 1fr; gap: 4px 16px; margin: 12px 0; }
+.assistant-review dt { font-weight: 600; }
+.assistant-review dd { margin: 0; overflow-wrap: anywhere; }
+.assistant-review details { margin: 12px 0; }
+.assistant-review pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.assistant-review .assistant-decline { background: transparent; color: inherit; border: 1px solid currentColor; }
+
+@media (max-width: 760px) {
+  .assistant-panels { grid-template-columns: 1fr; }
+  /* On a phone, each detail goes under its label, so a long address is not split. */
+  .assistant-review dl { grid-template-columns: 1fr; gap: 0; }
+  .assistant-review dd { margin-bottom: 8px; }
+}

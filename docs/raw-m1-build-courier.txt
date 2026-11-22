@@ -1,0 +1,15 @@
+Network: courier_dispatch
+Front agent: courier_desk_assistant
+Agents: 1
+  - courier_desk_assistant: 3808 instruction chars (+1612 CRUSE context added by the runtime); tools: []
+Website tools from actions.agentTools: website_get_dispatch_state, website_request_quote, website_lookup_job, website_cancel_job, website_confirm_dispatch
+  On this site's page, an agent gets the ones the page registers as local-only. Called from another site, it gets the ones bridge/bridge-actions.js shares with that site.
+Added to every agent by the runtime: render_cruse
+Bridge: bridge/action-bridge.html (shares the actions in bridge/bridge-actions.js with the callers they list)
+OK: wrote these files:
+  - D:\Conveyor\courier-site\courier_dispatch.network.json
+  - D:\Conveyor\courier-site\agent-mcp.json
+  - D:\Conveyor\courier-site\.well-known\nsdeploy.json
+  - D:\Conveyor\courier-site\.well-known\nsdeploy-agent.json
+  - D:\Conveyor\courier-site\bridge\action-bridge.html
+  - D:\Conveyor\courier-site\bridge\agent-manifest.json

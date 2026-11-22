@@ -1,0 +1,18 @@
+{
+  "protocol": "nsdeploy-link/v1",
+  "exports": [
+    {
+      "network": "little_oven_pizza",
+      "front_man": "little_oven_assistant",
+      "aliases": [
+        "little_oven_pizza",
+        "little_oven_assistant"
+      ],
+      "url": "little_oven_pizza"
+    }
+  ],
+  "imports": [],
+  "link_updates": {
+    "mode": "browser-local"
+  }
+}

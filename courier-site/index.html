@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Conveyor Courier in Marrow Point: same-day parcel runs between local businesses, with quotes, a job desk, status lookup and an assistant.">
+    <title>Conveyor Courier · Marrow Point</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="script.js"></script>
+    <script type="module" src="site.js"></script>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="#">Conveyor <span>Courier</span></a>
+      <nav aria-label="Main navigation"><a href="#quote">Get a quote</a><a href="#jobs">Job desk</a><a href="#lookup">Track a job</a><a href="#assistant">Ask us</a></nav>
+    </header>
+    <main>
+      <section class="intro" aria-labelledby="welcome">
+        <p class="eyebrow">4 Fish Quay · Marrow Point</p>
+        <h1 id="welcome">Parcels across town,<br>before they go cold.</h1>
+        <p>We collect from local kitchens and shops and run them across Marrow Point.</p>
+        <p id="demo-note" class="demo-note">Developer demo — jobs are recorded on a test desk. No parcel is really collected and no payment is taken.</p>
+      </section>
+
+      <div class="ordering-layout">
+        <section id="quote" aria-labelledby="quote-heading">
+          <h2 id="quote-heading">Get a quote</h2>
+          <p id="service-note">We serve Harbor front, North town and Old town. We do not deliver outside Marrow Point. A quote is valid for 15 minutes.</p>
+          <p id="fee-note">The fee is the zone's base fee, plus the parcel size, plus 50 cents for each item beyond the first two.</p>
+          <form id="quote-form">
+            <label for="drop-zone">Delivery zone</label>
+            <select id="drop-zone" name="dropZone">
+              <option value="harbor">Harbor front</option>
+              <option value="north">North town</option>
+              <option value="old_town">Old town</option>
+              <option value="outside">Outside Marrow Point</option>
+            </select>
+            <label for="parcel-size">Parcel size</label>
+            <select id="parcel-size" name="parcelSize">
+              <option value="small">Small bag (up to 2 items)</option>
+              <option value="medium">Medium box (up to 6 items)</option>
+              <option value="large">Large crate (up to 12 items)</option>
+            </select>
+            <label for="item-count">How many items</label>
+            <input id="item-count" name="itemCount" type="number" min="1" max="12" value="2">
+            <button id="get-quote" type="submit">Get a quote</button>
+          </form>
+          <p id="quote-result" class="total" role="status">No quote yet.</p>
+          <noscript>Please enable JavaScript to get a quote and use the job desk.</noscript>
+        </section>
+
+        <section id="jobs" class="cart" aria-labelledby="jobs-heading">
+          <h2 id="jobs-heading">Job desk</h2>
+          <p id="desk-hours">The desk takes jobs from 10:00 to 22:00.</p>
+          <p id="desk-status" role="status"></p>
+          <ul id="jobs-list" class="cart-items"><li>No jobs yet.</li></ul>
+          <button id="refresh-jobs" type="button">Refresh the desk</button>
+          <form id="cancel-form">
+            <h3>Cancel a job</h3>
+            <p id="cancel-rule">A job can be cancelled only while it is assigned, before the courier picks the parcel up. Once it is picked up or delivered, the desk cannot cancel it.</p>
+            <label for="cancel-job-id">Job number</label>
+            <input id="cancel-job-id" name="jobId" maxlength="60" autocomplete="off">
+            <label for="cancel-status">Status you saw</label>
+            <select id="cancel-status" name="expectedStatus">
+              <option value="assigned">assigned</option>
+              <option value="picked_up">picked_up</option>
+              <option value="delivered">delivered</option>
+              <option value="cancelled">cancelled</option>
+            </select>
+            <button id="cancel-job" type="submit">Cancel this job</button>
+          </form>
+        </section>
+      </div>
+
+      <section id="lookup" class="visit" aria-labelledby="lookup-heading">
+        <h2 id="lookup-heading">Track a job</h2>
+        <form id="lookup-form">
+          <label for="lookup-job-id">Job number</label>
+          <input id="lookup-job-id" name="jobId" maxlength="60" autocomplete="off">
+          <button id="lookup-job" type="submit">Look it up</button>
+        </form>
+        <p id="job-result" class="total" role="status">No job looked up yet.</p>
+        <p id="desk-error" class="demo-note" role="alert" hidden></p>
+        <p id="contact-note">Questions about a run? Call the desk on 555-0170.</p>
+        <p><a id="courier-contact" href="tel:555-0170">555-0170</a></p>
+        <p id="partner-note">Ordering food? Our neighbors at
+          <a id="pizza-link" href="http://127.0.0.1:8084/">Little Oven Pizza</a>
+          can hand a delivery straight to this desk from their own chat.</p>
+      </section>
+
+      <section id="assistant" class="assistant" aria-labelledby="assistant-heading">
+        <h2 id="assistant-heading">Ask Conveyor Courier</h2>
+        <p>Ask what a run costs, how long it takes, where we deliver, or let the assistant look up a job and cancel one that has not been picked up. Another site's assistant can ask us for a quote and dispatch a parcel for its visitor.</p>
+        <p class="assistant-note">Your messages and this page's data go to the LLM provider you choose in the settings below. You confirm anything that cannot be undone before it happens.</p>
+        <p id="assistant-status" role="status">Connecting the assistant… If this message stays, the assistant could not load. You can still use the page directly.</p>
+        <div id="agent-app">
+          <div data-ns-slot="header"></div>
+          <div class="assistant-panels">
+            <div data-ns-slot="chat"></div>
+            <div data-ns-slot="agents"></div>
+          </div>
+          <div data-ns-slot="settings"></div>
+        </div>
+      </section>
+    </main>
+    <footer>Conveyor Courier · 4 Fish Quay, Marrow Point · 555-0170 · Built for the Open Agentic Web</footer>
+  </body>
+</html>

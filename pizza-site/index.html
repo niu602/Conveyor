@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Little Oven Pizza in Marrow Point: pizzas for pickup or delivery, with the menu, opening hours, a demo checkout and an assistant.">
+    <title>Little Oven Pizza · Marrow Point</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="script.js"></script>
+    <script type="module" src="site.js"></script>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="#">Little Oven <span>Pizza</span></a>
+      <nav aria-label="Main navigation"><a href="#menu">Menu</a><a href="#cart">Your order</a><a href="#visit">Find us</a><a href="#assistant">Ask us</a></nav>
+    </header>
+    <main>
+      <section class="intro" aria-labelledby="welcome">
+        <p class="eyebrow">9 Ropewalk · Marrow Point</p>
+        <h1 id="welcome">A little oven.<br>A lot of flavor.</h1>
+        <p>Pick your favorites. We'll take care of dinner.</p>
+        <p id="demo-note" class="demo-note">Developer demo — orders are simulated, with no payment or real fulfillment.</p>
+      </section>
+      <div class="ordering-layout">
+        <section id="menu" aria-labelledby="menu-heading">
+          <h2 id="menu-heading">Our menu</h2>
+          <p id="menu-note">All pizzas are 12 inches. Prices in USD, with no additional demo taxes or fees.</p>
+          <p id="kitchen-note">Garden Veggie has a gluten-free crust; other pizzas contain wheat. Vegetarian, vegan and gluten-free options are labeled; all are prepared in a shared kitchen.</p>
+          <div id="menu-items" class="menu-items"></div>
+          <noscript>Please enable JavaScript to view the menu and place a demo order.</noscript>
+        </section>
+        <section id="cart" class="cart" aria-labelledby="cart-heading">
+          <h2 id="cart-heading">Your order</h2>
+          <p id="empty-cart">Your cart is empty. Add a pizza to get started.</p>
+          <ul id="cart-items" class="cart-items"></ul>
+          <p class="total">Total <strong id="cart-total">$0.00</strong></p>
+          <form id="checkout-form">
+            <label for="customer-name">Your name</label>
+            <input id="customer-name" name="customerName" autocomplete="name" required maxlength="80">
+            <label for="fulfillment">Pickup or delivery</label>
+            <select id="fulfillment" name="fulfillment">
+              <option value="pickup">Pickup</option>
+              <option id="delivery-option" value="delivery">Delivery (free in this demo)</option>
+            </select>
+            <div id="delivery-fields" hidden>
+              <label for="address">Delivery address</label>
+              <textarea id="address" name="address" autocomplete="street-address" rows="3" maxlength="300" disabled></textarea>
+            </div>
+            <label for="order-time">When would you like it?</label>
+            <input id="order-time" name="orderTime" type="time">
+            <small id="order-time-note">Leave blank for as soon as possible. Times are for today.</small>
+            <button id="place-order" type="submit" disabled>Place demo order</button>
+          </form>
+        </section>
+      </div>
+      <p id="cart-status" class="visually-hidden" role="status"></p>
+      <section id="confirmation" class="confirmation" aria-labelledby="confirmation-heading" tabindex="-1" hidden>
+        <p class="eyebrow">Thanks for stopping by</p>
+        <h2 id="confirmation-heading">Demo order received!</h2>
+        <p id="order-summary"></p>
+        <ul id="order-items"></ul>
+        <p id="order-total"></p>
+        <p>This confirmation is simulated. Refreshing the page clears it.</p>
+      </section>
+      <section id="visit" class="visit" aria-labelledby="visit-heading">
+        <h2 id="visit-heading">Find us</h2>
+        <p id="visit-note">We're at 9 Ropewalk, a short walk up from Fish Quay. Call us on 555-0188.</p>
+        <p id="opening-hours">Open Tuesday to Sunday, 12 pm to 9 pm. Closed on Mondays.</p>
+        <p id="around-note">Staying over or heading out on the water? We recommend our neighbors at
+          <a href="https://tidewhistle.example.com/">Tidewhistle Guesthouse</a> (555-0147) for rooms, and
+          <a href="https://harbortours.example.com/">Marrow Point Harbor Tours</a> (555-0162) for boat trips and walks.
+          Please book with them directly, as we can't book rooms or trips for you.</p>
+        <p id="courier-note">Want your pizzas run over by courier? Our neighbors at
+          <a href="http://localhost:8085/">Conveyor Courier</a> (555-0170) collect from our kitchen and deliver across Marrow Point.
+          Ask our assistant for a courier quote, and it will hand the delivery to their desk once you agree to the fee. You type your name, phone and address in their own window, never in this chat.</p>
+      </section>
+      <section id="assistant" class="assistant" aria-labelledby="assistant-heading">
+        <h2 id="assistant-heading">Ask Little Oven Pizza</h2>
+        <p>Ask about our pizzas, allergens, address and opening hours, or let the assistant fill your cart and place a demo order. It can also ask our neighbors, Tidewhistle Guesthouse and Marrow Point Harbor Tours, what they offer, and ask Conveyor Courier to quote and take a delivery for you.</p>
+        <p class="assistant-note">Your messages and this page's data go to the LLM provider you choose in the settings below. You confirm anything that cannot be undone before it happens.</p>
+        <p id="assistant-status" role="status">Connecting the assistant… If this message stays, the assistant could not load. You can still use the page directly.</p>
+        <div id="agent-app">
+          <div data-ns-slot="header"></div>
+          <div class="assistant-panels">
+            <div data-ns-slot="chat"></div>
+            <div data-ns-slot="agents"></div>
+          </div>
+          <div data-ns-slot="settings"></div>
+        </div>
+      </section>
+    </main>
+    <footer>Little Oven Pizza · 9 Ropewalk, Marrow Point · 555-0188 · A simple example for the Open Agentic Web</footer>
+  </body>
+</html>

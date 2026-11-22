@@ -1,0 +1,25 @@
+Partner network: http://localhost:8085/courier_dispatch
+Caller origin: http://127.0.0.1:8084
+Read: http://localhost:8085/agent-manifest.json (200)
+Read: http://localhost:8085/courier_dispatch.network.json (200)
+Read: http://localhost:8085/links.json (200)
+Read: http://localhost:8085/bridge/action-bridge.html (200)
+Read: http://localhost:8085/runtime/action-bridge.js (200)
+Read: http://localhost:8085/bridge/agent-manifest.json (200)
+Read: http://localhost:8085/bridge/bridge-actions.js (200)
+
+What the partner's network can reach. It runs in this site's visitor's browser, on the visitor's key, and its instructions read every request.
+Its bridge loads http://localhost:8085/bridge/bridge-actions.js. The partner's agents get the reads in it that list this site's origin or "*" in callerOrigins and are in the partner's actions.agentTools. Each runs in a hidden frame on the partner's origin.
+Its front agent's instructions start: "You are the assistant on the Conveyor Courier website. You help with same-day parcel runs between businesses in Marrow Point: delivery quotes, the zones and parcel sizes we take, job status and cancellations."
+It runs on the visitor's model, or else this site's front-agent model, within this site's step limit. Below are the models it names:
+  - courier_desk_assistant (front agent): model alibaba/qwen3.8-flash, max_steps 12
+      nothing beyond the partner's own agents
+  links.json: none
+
+Add to this site:
+  allowed_peers in agent-manifest.json: "http://localhost:8085"
+  tools of the calling agent: "http://localhost:8085/courier_dispatch"
+  link_labels in the .hocon: "http://localhost:8085/courier_dispatch": "Conveyor Courier Assistant" (suggested; write your own)
+  Tool name the model sees: courier_dispatch
+
+OK: http://localhost:8085/courier_dispatch can be called from http://127.0.0.1:8084.

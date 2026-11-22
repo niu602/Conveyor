@@ -1,0 +1,27 @@
+Partner network: http://127.0.0.1:8084/little_oven_pizza
+Caller origin: any site. Pass --origin <this site's origin> to check yours.
+Read: http://127.0.0.1:8084/agent-manifest.json (200)
+Read: http://127.0.0.1:8084/little_oven_pizza.network.json (200)
+Read: http://127.0.0.1:8084/links.json (200)
+Read: http://127.0.0.1:8084/bridge/action-bridge.html (200)
+Read: http://127.0.0.1:8084/runtime/action-bridge.js (200)
+Read: http://127.0.0.1:8084/bridge/agent-manifest.json (200)
+Read: http://127.0.0.1:8084/bridge/bridge-actions.js (200)
+
+What the partner's network can reach. It runs in this site's visitor's browser, on the visitor's key, and its instructions read every request.
+Its bridge loads http://127.0.0.1:8084/bridge/bridge-actions.js. The partner's agents get the reads in it that list this site's origin or "*" in callerOrigins and are in the partner's actions.agentTools. Each runs in a hidden frame on the partner's origin.
+Its front agent's instructions start: "You are the assistant on the Little Oven Pizza website. You help visitors of this pizza restaurant in Marrow Point with its pizzas, ingredients and allergens, pickup and delivery orders, its address and its opening hours."
+It runs on the visitor's model, or else this site's front-agent model, within this site's step limit. Below are the models it names:
+  - little_oven_assistant (front agent): model alibaba/qwen3.8-flash, max_steps 12
+      partner network http://127.0.0.1:8080/tidewhistle_guesthouse (asks the visitor first)
+      partner network http://localhost:8081/marrow_point_harbor_tours (asks the visitor first)
+      partner network http://localhost:8085/courier_dispatch (asks the visitor first)
+  links.json: none
+
+A site that calls this network adds:
+  allowed_peers in agent-manifest.json: "http://127.0.0.1:8084"
+  tools of the calling agent: "http://127.0.0.1:8084/little_oven_pizza"
+  link_labels in the .hocon: "http://127.0.0.1:8084/little_oven_pizza": "Little Oven Pizza Assistant" (suggested; write your own)
+  Tool name the model sees: little_oven_pizza
+
+OK: http://127.0.0.1:8084/little_oven_pizza can be called from other sites.

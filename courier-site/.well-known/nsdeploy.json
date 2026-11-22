@@ -1,0 +1,18 @@
+{
+  "exports": [
+    {
+      "aliases": [
+        "courier_dispatch",
+        "courier_desk_assistant"
+      ],
+      "front_man": "courier_desk_assistant",
+      "network": "courier_dispatch",
+      "url": "courier_dispatch"
+    }
+  ],
+  "imports": [],
+  "link_updates": {
+    "mode": "browser-local"
+  },
+  "protocol": "nsdeploy-link/v1"
+}

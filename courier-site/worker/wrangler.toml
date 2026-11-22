@@ -1,0 +1,16 @@
+name = "conveyor-courier-desk"
+main = "index.js"
+compatibility_date = "2026-11-01"
+
+# The desk's database. Create it once with:
+#   wrangler d1 create conveyor-courier
+# then put the printed database_id below, and apply the schema with:
+#   wrangler d1 execute conveyor-courier --file=./schema.sql --remote
+[[d1_databases]]
+binding = "DB"
+database_name = "conveyor-courier"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+
+# Local development runs on 8086 so the site's own server keeps 8085.
+[dev]
+port = 8086

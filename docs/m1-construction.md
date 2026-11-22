@@ -1,5 +1,12 @@
 # M1 construction list — "one needle"
 
+> **This is the pre-build plan, kept as written.** M1 is done; the code and
+> [`m1-acceptance.md`](m1-acceptance.md) are the source of truth. Where the two disagree,
+> the deltas are listed in §7 of the acceptance record. In short: the bridge read is named
+> `request_quote` (not `get_quote`) and is joined by `get_dispatch_state` and `lookup_job`;
+> the Worker gained `POST /api/dispatch/check`; `desk-client.js` and `demo-job.js` were
+> added; and the Worker entry is `worker/index.js`, not `worker/src/index.js`.
+
 Scope: 2026-11-25 → 11-29. Goal is the red line from the plan: a **real browser** run of
 
 ```text
@@ -192,6 +199,17 @@ page's `lookup_job` requires the job id, and the list endpoint is not exposed th
 and a test that the courier URL is declared in `tools`, `link_labels` and `allowed_peers`.
 
 ## 6. Acceptance for M1
+
+**Result: met, 2026-11-22.** Both builds exit 0 (pizza carries the upstream CRLF warning,
+issue #70); courier 30 tests and pizza 31 tests pass; `check_partner` OK from both origins;
+the browser run quoted $7.00 cross-origin, confirmed in the courier's own window on
+`localhost:8085`, replayed to the same job id, and declined without leaving a job. Full
+record, receipts and screenshots in [`m1-acceptance.md`](m1-acceptance.md).
+
+Two items below were deferred rather than met: step 4's `unknown` outcome needs the M2
+state machine (M1 returns a definite `ok:false` when the desk is unreachable), and the
+natural-language chat in step 2 needs a working BYOK key — M1 drove the same runtime path
+by script instead, which is the official "check without a key" method.
 
 ```shell
 # both sites build with zero errors
