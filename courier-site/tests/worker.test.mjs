@@ -133,6 +133,84 @@ test("the same idempotency key lands one job, however often it is sent", async (
   assert.notEqual(other.body.jobId, first.body.jobId);
 });
 
+test("an unknown dispatch is settled by reading its key, and the read records nothing", async () => {
+  const store = new MemoryStore();
+  const held = await quote(store, { dropZone: "north", parcelSize: "small", itemCount: 2 });
+  const body = dispatchBody(held, "key-settle");
+
+  // Before the write: the key names nothing, and asking does not create it.
+  const before = await send(store, "GET", "/api/dispatch/outcome?key=key-settle", null);
+  assert.equal(before.status, 200);
+  assert.deepEqual(before.body, { ok: true, recorded: false });
+  assert.equal((await store.listJobs(50)).length, 0, "The outcome read created a job.");
+
+  const written = await send(store, "POST", "/api/dispatch", body);
+  assert.equal(written.status, 201);
+  const jobsAfterWrite = await store.listJobs(50);
+  const eventsAfterWrite = await store.listEvents(written.body.jobId);
+
+  // After the write: the same read settles it as recorded, with the same receipt.
+  const after = await send(store, "GET", "/api/dispatch/outcome?key=key-settle", null);
+  assert.equal(after.status, 200);
+  assert.equal(after.body.ok, true);
+  assert.equal(after.body.recorded, true);
+  assert.equal(after.body.jobId, written.body.jobId);
+  assert.equal(after.body.feeCents, held.feeCents);
+  assert.equal(after.body.status, "assigned");
+  assert.deepEqual(after.body.events, eventsAfterWrite);
+
+  // Reading it again, and reading it many times, changes nothing at all.
+  for (let i = 0; i < 3; i += 1) {
+    await send(store, "GET", "/api/dispatch/outcome?key=key-settle", null);
+  }
+  assert.deepEqual(await store.listJobs(50), jobsAfterWrite, "The outcome read changed the jobs.");
+  assert.deepEqual(await store.listEvents(written.body.jobId), eventsAfterWrite, "The outcome read added an event.");
+});
+
+test("settling by key leaves one job, and a replay after it still returns that job", async () => {
+  const store = new MemoryStore();
+  const held = await quote(store, { dropZone: "harbor", parcelSize: "small", itemCount: 1 });
+  const body = dispatchBody(held, "key-replay-after-read");
+  const first = await send(store, "POST", "/api/dispatch", body);
+  const settled = await send(store, "GET", "/api/dispatch/outcome?key=key-replay-after-read", null);
+  assert.equal(settled.body.jobId, first.body.jobId);
+
+  // A caller that lost the answer and then sends again anyway must not get a second run.
+  const again = await send(store, "POST", "/api/dispatch", body);
+  assert.equal(again.status, 200);
+  assert.equal(again.body.replayed, true);
+  assert.equal(again.body.jobId, first.body.jobId);
+  assert.equal((await store.listJobs(50)).length, 1, "A replay after the read made a second job.");
+});
+
+test("the outcome read needs a key, serves only its callers and carries no details", async () => {
+  const store = new MemoryStore();
+  const held = await quote(store, { dropZone: "north", parcelSize: "small", itemCount: 2 });
+  const written = await send(store, "POST", "/api/dispatch", dispatchBody(held, "key-private"));
+
+  for (const path of ["/api/dispatch/outcome", "/api/dispatch/outcome?key=", "/api/dispatch/outcome?key=%20%20"]) {
+    const missing = await send(store, "GET", path, null);
+    assert.equal(missing.status, 422, `${path} should refuse a missing key.`);
+    assert.equal(missing.body.field, "idempotencyKey");
+  }
+
+  const stranger = await send(store, "GET", "/api/dispatch/outcome?key=key-private", null, "http://evil.example");
+  assert.equal(stranger.status, 403);
+  assert.equal(stranger.acao, null);
+
+  const answer = await send(store, "GET", "/api/dispatch/outcome?key=key-private", null);
+  const text = JSON.stringify(answer.body);
+  for (const value of ["Sam", "Lee", "555 0100", "Harbor Rd", "Ring twice"]) {
+    assert.equal(text.includes(value), false, `The outcome read leaked "${value}".`);
+  }
+  assert.equal(answer.body.jobId, written.body.jobId);
+
+  // A key nothing was sent with is an answer, not an error: nothing was recorded.
+  const unused = await send(store, "GET", "/api/dispatch/outcome?key=never-sent", null);
+  assert.equal(unused.status, 200);
+  assert.deepEqual(unused.body, { ok: true, recorded: false });
+});
+
 test("two writers racing on one key still leave one job", async () => {
   const store = new MemoryStore();
   const held = await quote(store, { dropZone: "harbor", parcelSize: "small", itemCount: 2 });

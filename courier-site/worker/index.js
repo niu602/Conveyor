@@ -95,6 +95,12 @@ export async function handle(request, store, now) {
       const status = result.code === "quote_expired" ? 410 : result.code === "quote_changed" || result.code === "quote_mismatch" ? 409 : 422;
       return send(status, result);
     }
+    if (request.method === "GET" && path === "/api/dispatch/outcome") {
+      // The read that settles an unknown dispatch. It records nothing: the caller lost
+      // the answer to a write and asks whether it landed, by the same idempotency key.
+      const result = await desk.outcome(url.searchParams.get("key"));
+      return send(result.ok ? 200 : 422, result);
+    }
     if (request.method === "GET" && path === "/api/jobs") {
       const limit = Math.min(50, Math.max(1, Number(url.searchParams.get("limit")) || 20));
       const jobs = await store.listJobs(limit);

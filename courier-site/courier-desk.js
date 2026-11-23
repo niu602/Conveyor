@@ -158,6 +158,29 @@ export class CourierDesk {
   }
 
   /**
+   * Settle a dispatch whose outcome was unknown, by its idempotency key.
+   *
+   * This reads only. A caller that lost the answer to a dispatch asks here whether the
+   * job landed, instead of sending the dispatch again. The key names at most one job,
+   * so "recorded false" means nothing was accepted under that key.
+   *
+   * :param key: The idempotency key the dispatch was sent with.
+   * :return: A promise of {ok: true, recorded, ...receipt} or {ok: false, reason}.
+   */
+  async outcome(key) {
+    const trimmed = String(key || "").trim();
+    if (!trimmed) {
+      return { ok: false, reason: "Reading an outcome needs the idempotency key the dispatch was sent with.", field: "idempotencyKey" };
+    }
+    const job = await this.store.getJobByKey(trimmed);
+    if (!job) {
+      return { ok: true, recorded: false };
+    }
+    const events = await this.store.listEvents(job.jobId);
+    return { ok: true, recorded: true, ...CourierDesk.receipt(job), events };
+  }
+
+  /**
    * Read one job, without its visitor details.
    *
    * :param jobId: The job's id.

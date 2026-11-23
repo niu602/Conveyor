@@ -33,6 +33,7 @@ const server = createServer(async (req, res) => {
 
 server.listen(port, "127.0.0.1", () => {
   console.log(`Courier desk (local, in-memory) on http://127.0.0.1:${port}`);
-  console.log("Endpoints: POST /api/quote, POST /api/dispatch, GET /api/jobs, GET /api/jobs/:id,");
+  console.log("Endpoints: POST /api/quote, POST /api/dispatch/check, POST /api/dispatch,");
+  console.log("           GET /api/dispatch/outcome?key=..., GET /api/jobs, GET /api/jobs/:id,");
   console.log("           POST /api/jobs/:id/cancel, POST /api/jobs/:id/advance, GET /api/health");
 });
