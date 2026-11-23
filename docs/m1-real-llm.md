@@ -51,10 +51,17 @@ M1 的机制此前已用「无 key 直调 runtime」验过（见 `m1-acceptance.
 
 工具：`website_get_restaurant_state`、`website_add_to_cart`。**未调用 partner。**
 
-**这不是 partner_rules 违规，但是一个真实行为偏差**：站点自己的 `checkOrder()`
-（`pizza-site/script.js:589`）**根本不校验营业时间**，只校验购物车、版本、姓名、
-配送方式、地址、时间格式。模型是从 grounding 事实自行推断出「周一不能下单」并连续两轮
-坚持拒绝。它没有幻觉（营业时间是真的），但比站点实际能力更严格。
+**这不是违规，恰恰是严格合规。** 站点自己的 `checkOrder()`
+（`pizza-site/script.js:589`）确实**不校验营业时间**，但 `place_demo_order` 的
+action description（`site-actions.js:163`，官方示例原文）明写：
+
+> The site does not check opening hours: check the time, or now for as soon as possible,
+> against today and the opening hours from `website_get_restaurant_state`, and if the
+> kitchen is closed then, **tell the visitor instead**.
+
+模型两轮都照做了：读真实营业时间 → 判断周一关门 → 拒绝下单并说明 → 指出页面自己的
+结账控件是另一条路。**这是 flash 档模型正确执行「代码不查、由你查」这类软约束的实证**，
+比跑通本身更有价值。
 
 ### 轮 2b — 改用页面自带表单下单（真实访客路径）
 
@@ -300,18 +307,30 @@ bridge 共享列表里，轮 7 显式要求后一次就成功并读回真实事�
 
 模型的行为其实是**对的**：不猜、不幻觉、给出对方链接。是我们的指令让它够不着一个
 已经存在的能力。**修法：给 courier 补一条查状态的 How to work 行。**
+已于 2026-11-23 落地并经真模型复验：访客只说「How is my delivery getting on?」，模型
+自发发起 partner 调用并读回真实 events，见 `m2-mandate.md` §2.7。
 
 ### 缺口 B：booking code 规则自相矛盾
 
 见判定表 #7。通用 `partner_rules` 禁 booking code，courier 行又要求带上我方订单号。
 flash 模型选择了服从更具体的那条（合理），但这让「是否违规」无法客观判定。
-**修法：把通用规则改成禁「访客身份标识与对方的预订码」，明确放行调用方自己的订单引用。**
+**修法（2026-11-23 落地时调整）：不动 `partner_rules` 原文，改在 courier 的 How to work
+行里加一句「Your order number is your run reference, not a booking code」。**
+最初设想是直接改通用规则，但 `partner_rules` 必须与官方模板逐字一致——改它会把现有的
+CRLF 假阳性变成真实的模板偏离。消解冲突因此放在站点自己的行里。
+实现与真模型复验见 `m2-mandate.md` §7。
 
-### 附带观察：模型比站点更严格
+### 附带观察：软约束这次被守住了，但不能指望
 
-轮 1/2 的拒单见 §1。站点 `checkOrder()` 不校验营业时间，模型自行加了这道闸。
-方向上是安全的（宁可不做），但说明**「站点能做什么」和「模型认为站点能做什么」会分叉**。
-M2 设计 mandate 时，不能假设模型的能力边界判断与代码一致——**绑定必须由代码强制**。
+轮 1/2 的拒单见 §1——模型严格执行了 action description 里「代码不查营业时间、由你查」
+的软约束。这条**这次守住了**。
+
+但它和 #2 的请求超长放在一起看，结论是一致的：**同一个 flash 模型，能守住写在工具
+描述里的软约束，却守不住写在 partner_rules 里的 140 字符上限**。差别在于前者是语义判断
+（模型擅长），后者是精确计数（模型不擅长）。
+
+M2 设计 mandate 时据此分工：**语义判断可以交给模型，精确量（字符数、金额、版本）必须
+由代码强制**。
 
 ---
 
@@ -353,6 +372,8 @@ PII 扫描（`/api/jobs/:id` 与 `/api/jobs` 两个公开端点）：
   121–132 字符，说明它**能**遵守，只是首次没估长度。
 - 隐私纪律**零违规**：四次请求都没有姓名电话地址邮箱，窗口里填的四项从未回流到聊天。
 - 对 Skipped 的处理、先报价后派单的时序、点名给链接，全部一次到位。
+- **软约束执行到位**：`place_demo_order` 的描述要求模型自行对照营业时间（代码不查），
+  模型连续两轮正确拒绝并给出替代路径，没有幻觉也没有硬闯。
 - 端点侧出现过一次 **HTTP 429 `Cluster TPM rate limit exceeded`**（免费额度共享集群），
   等待约 60 秒后恢复。这是额度问题不是模型问题，但**演示视频录制时要避开高峰或预热**。
 

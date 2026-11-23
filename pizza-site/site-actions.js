@@ -25,6 +25,7 @@ class SiteActions {
     actions.register(SiteActions.addToCartAction());
     actions.register(SiteActions.setCartQuantitiesAction());
     actions.register(SiteActions.placeDemoOrderAction());
+    actions.register(SiteActions.authorizeDeliveryAction());
   }
 
   /**
@@ -35,7 +36,7 @@ class SiteActions {
   static readStateAction() {
     return {
       name: "get_restaurant_state",
-      description: "Read the menu (ids, prices, ingredients, dietary labels, allergens), the cart with its version, the latest demo order in this tab, today's date and time, and the page's facts with links: size, fees, kitchen, delivery, order times, address, phone, opening hours and neighbors. Call it before answering about any of these, and again in each turn that needs it: the visitor can also use the page.",
+      description: "Read the menu (ids, prices, ingredients, dietary labels, allergens), the cart with its version, the latest demo order in this tab, any delivery authorization already made for it, today's date and time, and the page's facts with links: size, fees, kitchen, delivery, order times, address, phone, opening hours and neighbors. Call it before answering about any of these, and again in each turn that needs it: the visitor can also use the page.",
       effect: "read",
       inputSchema: {
         type: "object",
@@ -207,6 +208,74 @@ class SiteActions {
    */
   static placeDemoOrder(args) {
     return App.page.placeOrder(args);
+  }
+
+  /**
+   * Describe the irreversible delivery authorization the visitor must confirm.
+   *
+   * :return: The action definition.
+   */
+  static authorizeDeliveryAction() {
+    return {
+      name: "authorize_delivery",
+      description: "Bind the courier fee the visitor agreed to their placed order, before you ask courier_dispatch to dispatch. Call it only after the courier has quoted and the visitor has agreed to that fee. It checks the order number, the item count and the page version, opens a confirmation showing the fee and the items, and returns a mandate with a ready-made request. Then send that mandate's request to courier_dispatch verbatim: it already fits the consent card. It sends nothing itself and never asks for a name, phone or address; the courier's own window takes those. Returns ok false with a reason when the order, count, version or fee does not match, or when the details would make an over-long request.",
+      effect: "irreversible",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        required: ["orderId", "quoteId", "dropZone", "parcelSize", "itemCount", "feeCents", "expectedVersion"],
+        properties: {
+          orderId: {
+            type: "string",
+            maxLength: 40,
+            description: "The order number from website_get_restaurant_state's latestOrder.",
+          },
+          quoteId: {
+            type: "string",
+            maxLength: 60,
+            description: "The quote reference the courier gave, such as Q-....",
+          },
+          dropZone: {
+            type: "string",
+            maxLength: 40,
+            description: "The delivery zone the courier quoted for, as it named it.",
+          },
+          parcelSize: {
+            type: "string",
+            maxLength: 24,
+            description: "The parcel size the courier quoted for, as it named it.",
+          },
+          itemCount: {
+            type: "integer",
+            minimum: 1,
+            maximum: 99,
+            description: "How many items the order has, from latestOrder.",
+          },
+          feeCents: {
+            type: "integer",
+            minimum: 0,
+            maximum: 99999,
+            description: "The courier fee in cents, exactly as quoted, from its feeCents.",
+          },
+          expectedVersion: {
+            type: "integer",
+            minimum: 0,
+            description: "The latest cart version in this turn, from website_get_restaurant_state.",
+          },
+        },
+      },
+      execute: SiteActions.authorizeDelivery,
+    };
+  }
+
+  /**
+   * Record the authorization through the page's own operation.
+   *
+   * :param args: The validated, visitor-confirmed arguments.
+   * :return: The mandate, or {ok: false, reason} when the site refuses it.
+   */
+  static authorizeDelivery(args) {
+    return App.page.authorizeDelivery(args);
   }
 }
 

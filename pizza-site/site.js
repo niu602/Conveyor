@@ -29,6 +29,12 @@ export class AssistantMount {
       confirm: "Place the demo order",
       decline: "Don't order",
     },
+    "authorize_delivery": {
+      title: "Authorize this delivery fee?",
+      sentence: "We will record that you agreed to this courier fee for this order, and give the assistant the exact request to send. Nothing is sent yet: the courier's own window opens next, where you type your name, phone and address.",
+      confirm: "Authorize this fee",
+      decline: "Don't authorize",
+    },
   };
 
   /**
@@ -202,6 +208,9 @@ export class AssistantMount {
    * :return: Details by label, {refusal: reason}, or {} when the action has none.
    */
   static reviewDetails(action, args) {
+    if (action === "authorize_delivery") {
+      return AssistantMount.deliveryDetails(args);
+    }
     if (action !== "place_demo_order") {
       return {};
     }
@@ -220,6 +229,29 @@ export class AssistantMount {
       "Name": check.name,
       "Pickup or delivery": check.destination,
       "When": `Today, ${check.when}`,
+    };
+  }
+
+  /**
+   * The readable details for a delivery authorization, from the same read-only check the
+   * operation runs first. The fee shown here is the fee the mandate binds.
+   *
+   * :param args: The action's arguments.
+   * :return: Details by label, or {refusal: reason}.
+   */
+  static deliveryDetails(args) {
+    const check = App.page.checkDeliveryHandoff(args);
+    if (!check.ok) {
+      return {refusal: check.reason};
+    }
+    return {
+      "Order": check.orderId,
+      "In the parcel": `${check.itemSummary} — ${check.itemCount} item(s)`,
+      "Delivery zone": check.dropZone,
+      "Parcel size": check.parcelSize,
+      "Courier fee": check.feeText,
+      "Pizza total": check.orderTotal,
+      "Your details": "The courier's own window asks for your name, phone and address. Nothing here is sent to them.",
     };
   }
 

@@ -71,6 +71,14 @@ export class App {
   static TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 
   /**
+   * The consent card shows the visitor only the first 140 characters of a request to a
+   * partner site, so the mandate builds one that fits. The model is told to pass it
+   * verbatim: counting characters is not something to leave to a model.
+   */
+  static REQUEST_LIMIT = 140;
+
+
+  /**
    * The page object that the page, site-actions.js and site.js share. Set once below.
    */
   static page = null;
@@ -90,6 +98,9 @@ export class App {
     // Goes up on every cart change, so an order never uses a cart the visitor did not see.
     this.version = 0;
     this.latestOrder = null;
+    // The delivery the visitor authorized for latestOrder, bound to its items and fee.
+    // A new order clears it: an authorization never carries over to a different order.
+    this.deliveryMandate = null;
     this.form = document.querySelector("#checkout-form");
     this.nameField = document.querySelector("#customer-name");
     this.fulfillment = document.querySelector("#fulfillment");
@@ -97,6 +108,7 @@ export class App {
     this.timeField = document.querySelector("#order-time");
     this.cartList = document.querySelector("#cart-items");
     this.confirmation = document.querySelector("#confirmation");
+    this.mandatePanel = document.querySelector("#delivery-mandate");
   }
 
   /**
@@ -265,6 +277,7 @@ export class App {
       pageFacts: this.pageFacts(),
       cart: this.cartState(),
       latestOrder: this.latestOrder === null ? null : JSON.parse(JSON.stringify(this.latestOrder)),
+      deliveryMandate: this.mandateState(),
     };
   }
 
@@ -665,6 +678,9 @@ export class App {
     document.querySelector("#order-items").replaceChildren(...rows);
     document.querySelector("#order-total").textContent = `Total: ${order.total}`;
     this.latestOrder = order;
+    // A new order is a different order: any earlier delivery authorization is void.
+    this.deliveryMandate = null;
+    this.renderMandate();
     this.cart.clear();
     this.version += 1;
     this.renderCart();
@@ -678,6 +694,162 @@ export class App {
       order: JSON.parse(JSON.stringify(order)),
       cart: this.cartState(),
     };
+  }
+
+  /**
+   * Check a delivery hand-off without changing anything. The confirmation dialog calls
+   * this first, so a hand-off the site would refuse never opens a dialog.
+   *
+   * The page cannot re-price the courier's quote, so it binds what it does own: the order
+   * the visitor is looking at, its item count, and the fee the visitor agreed to. The
+   * courier's desk separately refuses a fee that does not match its own quote.
+   *
+   * :param details: orderId, quoteId, dropZone, parcelSize, itemCount, feeCents,
+   *   expectedVersion.
+   * :return: A refusal, or {ok: true} with the bound values and the request to send.
+   */
+  checkDeliveryHandoff(details) {
+    if (this.latestOrder === null) {
+      return App.refusal("Place the order first: there is no order to hand to a courier.", "orderId");
+    }
+    if (details.expectedVersion !== this.version) {
+      return App.refusal("The page has changed since it was read. Read it again and check the order with the visitor before authorizing a delivery.", "expectedVersion");
+    }
+    const orderId = String(details.orderId || "").trim();
+    if (orderId !== this.latestOrder.orderId) {
+      return App.refusal(`That is not the latest order in this tab. The latest is ${this.latestOrder.orderId}.`, "orderId");
+    }
+    if (this.latestOrder.fulfillment !== "delivery") {
+      return App.refusal("That order is for pickup, so there is nothing for a courier to bring.", "orderId");
+    }
+    const count = this.latestOrder.items.reduce((total, line) => total + line.quantity, 0);
+    if (details.itemCount !== count) {
+      return App.refusal(`The order has ${count} item(s), not ${details.itemCount}. Read it again before authorizing.`, "itemCount");
+    }
+    const quoteId = String(details.quoteId || "").trim();
+    if (!quoteId) {
+      return App.refusal("Ask the courier for a quote first, then pass the quote reference it gave.", "quoteId");
+    }
+    const dropZone = String(details.dropZone || "").trim();
+    if (!dropZone) {
+      return App.refusal("Give the delivery zone the courier quoted for.", "dropZone");
+    }
+    const parcelSize = String(details.parcelSize || "").trim();
+    if (!parcelSize) {
+      return App.refusal("Give the parcel size the courier quoted for.", "parcelSize");
+    }
+    if (!Number.isInteger(details.feeCents) || details.feeCents < 0) {
+      return App.refusal("Give the fee in cents exactly as the courier quoted it.", "feeCents");
+    }
+    const request = App.courierRequest({
+      orderId: orderId,
+      quoteId: quoteId,
+      dropZone: dropZone,
+      parcelSize: parcelSize,
+      itemCount: count,
+      feeCents: details.feeCents,
+    });
+    if (request.length > App.REQUEST_LIMIT) {
+      return App.refusal(`Those details make a ${request.length}-character request, over the ${App.REQUEST_LIMIT} the consent card shows. Shorten the zone or parcel size, or ask the courier for a shorter quote reference.`, "quoteId");
+    }
+    return {
+      ok: true,
+      orderId: orderId,
+      quoteId: quoteId,
+      dropZone: dropZone,
+      parcelSize: parcelSize,
+      itemCount: count,
+      feeCents: details.feeCents,
+      feeText: App.money(details.feeCents),
+      itemSummary: App.itemSummary(this.latestOrder.items),
+      orderTotal: this.latestOrder.total,
+      request: request,
+    };
+  }
+
+  /**
+   * Record the delivery the visitor authorized, and give back the exact request to send
+   * to the courier. Nothing is sent from here: the courier's own window takes the
+   * visitor's name, phone and address, and this page never asks for them.
+   *
+   * :param details: The same details as checkDeliveryHandoff().
+   * :return: {ok: true, mandate}, or a refusal from the check.
+   */
+  authorizeDelivery(details) {
+    const check = this.checkDeliveryHandoff(details);
+    if (!check.ok) {
+      return check;
+    }
+    const mandate = {
+      orderId: check.orderId,
+      quoteId: check.quoteId,
+      dropZone: check.dropZone,
+      parcelSize: check.parcelSize,
+      itemCount: check.itemCount,
+      itemSummary: check.itemSummary,
+      feeCents: check.feeCents,
+      feeText: check.feeText,
+      orderTotal: check.orderTotal,
+      request: check.request,
+      authorizedAt: App.now().toISOString(),
+    };
+    this.deliveryMandate = mandate;
+    this.renderMandate();
+    return { ok: true, mandate: JSON.parse(JSON.stringify(mandate)) };
+  }
+
+  /**
+   * Show the authorized delivery where the page's own confirmation sits.
+   */
+  renderMandate() {
+    const mandate = this.deliveryMandate;
+    if (mandate === null) {
+      this.mandatePanel.hidden = true;
+      this.mandatePanel.replaceChildren();
+      return;
+    }
+    this.mandatePanel.replaceChildren(
+      App.element("h3", "Delivery authorized"),
+      App.element("p", `Order ${mandate.orderId} — ${mandate.itemSummary}.`),
+      App.element("p", `${mandate.dropZone}, ${mandate.parcelSize}, ${mandate.itemCount} item(s). Courier fee ${mandate.feeText}.`),
+      App.element("p", "Nothing has been sent yet. The courier's own window takes your name, phone and address."),
+    );
+    this.mandatePanel.hidden = false;
+  }
+
+  /**
+   * Describe the authorized delivery for the assistant, as a copy.
+   *
+   * :return: The mandate, or null when nothing is authorized.
+   */
+  mandateState() {
+    return this.deliveryMandate === null
+      ? null
+      : JSON.parse(JSON.stringify(this.deliveryMandate));
+  }
+
+  /**
+   * Build the one request the model should send to the courier, verbatim. Keeping it
+   * here means the 140-character consent-card limit is met by the page, not by a model
+   * estimating length.
+   *
+   * :param bound: orderId, quoteId, dropZone, parcelSize, itemCount, feeCents.
+   * :return: The request text.
+   */
+  static courierRequest(bound) {
+    return `Dispatch ${bound.orderId}, quote ${bound.quoteId}: `
+      + `${bound.dropZone}, ${bound.parcelSize}, ${bound.itemCount} items, `
+      + `fee ${App.money(bound.feeCents)}.`;
+  }
+
+  /**
+   * Summarize order lines the way the courier's parcel summary reads them.
+   *
+   * :param items: The order's cart lines.
+   * :return: A short summary such as "2x Margherita, 1x Pepperoni".
+   */
+  static itemSummary(items) {
+    return items.map((line) => `${line.quantity}x ${line.name}`).join(", ");
   }
 
   /**

@@ -20,6 +20,7 @@ const READ_ACTION = "get_restaurant_state";
 const WRITE_ACTION = "add_to_cart";
 const SET_ACTION = "set_cart_quantities";
 const IRREVERSIBLE_ACTION = "place_demo_order";
+const MANDATE_ACTION = "authorize_delivery";
 // The order only the bridge shares, run in this site's own window.
 const SHARED_ORDER = "place_order";
 // The page's address in these tests, the one it is served at on this machine. The DOM
@@ -683,7 +684,7 @@ class AgentifiedSiteTest {
       const words = JSON.stringify([entry.description, entry.inputSchema]);
       assert.ok(!words.includes("TODO"), `The ${entry.name} action still has a TODO in its description or schema.`);
     }
-    assert.deepEqual(loaded.manifest.actions.agentTools, [READ_ACTION, WRITE_ACTION, SET_ACTION, IRREVERSIBLE_ACTION, SHARED_ORDER]);
+    assert.deepEqual(loaded.manifest.actions.agentTools, [READ_ACTION, WRITE_ACTION, SET_ACTION, IRREVERSIBLE_ACTION, MANDATE_ACTION, SHARED_ORDER]);
     const shared = AgentifiedSiteTest.sharedActions();
     for (const name of loaded.manifest.actions.agentTools) {
       // A name the page does not register is an action only the bridge shares.
@@ -701,6 +702,10 @@ class AgentifiedSiteTest {
     assert.equal(registered.get(WRITE_ACTION).effect, "write");
     assert.equal(registered.get(SET_ACTION).effect, "write");
     assert.equal(registered.get(IRREVERSIBLE_ACTION).effect, "irreversible");
+    assert.equal(registered.get(MANDATE_ACTION).effect, "irreversible");
+    const mandate = registered.get(MANDATE_ACTION).description;
+    assert.ok(mandate.includes("verbatim"), "The mandate description does not tell the model to send its request verbatim.");
+    assert.ok(mandate.includes("never asks for a name, phone or address"), "The mandate description does not rule out asking for the visitor's details.");
     const order = registered.get(IRREVERSIBLE_ACTION).description;
     assert.ok(order.includes("In the turn you call it, first call website_get_restaurant_state and wait for its result"));
     assert.ok(order.includes("The site does not check opening hours"));
@@ -2059,6 +2064,276 @@ class AgentifiedSiteTest {
     }
     return new Response("Not found", {status: 404});
   }
+
+  /**
+   * Place a delivery order for the arranged cart, so a mandate has something to bind to.
+   *
+   * :param registry: The action registry.
+   * :return: The page state after the order.
+   */
+  static async arrangeDeliveryOrder(registry) {
+    await AgentifiedSiteTest.arrangeIrreversibleState(registry);
+    const before = await AgentifiedSiteTest.readState(registry);
+    const receipt = await AgentifiedSiteTest.call(IRREVERSIBLE_ACTION, AgentifiedSiteTest.irreversibleArguments(before), AgentifiedSiteTest.approve);
+    assert.equal(receipt.status, "succeeded");
+    assert.equal(receipt.result.ok, true, receipt.result.reason);
+    return AgentifiedSiteTest.readState(registry);
+  }
+
+  /**
+   * Valid mandate arguments for the arranged order. The fee is the courier's own price
+   * for north + medium + 6 items: 450 + 200 + (6 - 2) × 50 = 850 cents.
+   *
+   * :param state: The page state after the delivery order.
+   * :return: The arguments.
+   */
+  static mandateArguments(state) {
+    return {
+      orderId: state.latestOrder.orderId,
+      quoteId: "Q-3d8373bb-68e9-4fd6-9d94-14bdf85b51f8",
+      dropZone: "north",
+      parcelSize: "medium",
+      itemCount: 6,
+      feeCents: 850,
+      expectedVersion: state.cart.version,
+    };
+  }
+
+  /**
+   * The mandate binds the order it was given: its number, its real item count and the
+   * fee the visitor agreed to, and it hands back a request that fits the consent card.
+   */
+  static async testMandateBindsTheOrderAndFee() {
+    const registry = await AgentifiedSiteTest.registry();
+    const state = await AgentifiedSiteTest.arrangeDeliveryOrder(registry);
+    const args = AgentifiedSiteTest.mandateArguments(state);
+    AgentifiedSiteTest.clearFocus();
+    const receipt = await AgentifiedSiteTest.call(MANDATE_ACTION, args, AgentifiedSiteTest.approve);
+    assert.equal(receipt.status, "succeeded");
+    assert.equal(receipt.result.ok, true, receipt.result.reason);
+    const mandate = receipt.result.mandate;
+    assert.equal(mandate.orderId, state.latestOrder.orderId);
+    // 1 Roasted Veg + 2 Margherita + 3 Garden Veggie, in cart order.
+    assert.equal(mandate.itemCount, 6);
+    assert.equal(mandate.itemSummary, "1x Roasted Veg, 2x Margherita, 3x Garden Veggie");
+    assert.equal(mandate.feeCents, 850);
+    assert.equal(mandate.feeText, "$8.50");
+    assert.equal(mandate.orderTotal, "$77.50");
+    assert.equal(mandate.quoteId, args.quoteId);
+    assert.ok(mandate.request.length <= 140, `The mandate's request is ${mandate.request.length} characters.`);
+    for (const piece of [mandate.orderId, mandate.quoteId, "north", "medium", "6 items", "$8.50"]) {
+      assert.ok(mandate.request.includes(piece), `The request does not carry ${piece}.`);
+    }
+    const after = await AgentifiedSiteTest.readState(registry);
+    assert.deepEqual(after.deliveryMandate, mandate);
+    assert.equal(document.getElementById("delivery-mandate").hidden, false);
+    assert.deepEqual(AgentifiedSiteTest.focusedIds(), [], `website_${MANDATE_ACTION} moved focus.`);
+  }
+
+  /**
+   * The page, not the model, keeps the request inside the consent card's 140 characters:
+   * anything longer is refused with the real length in the reason, and a realistic
+   * quote reference fits with room to spare.
+   */
+  static async testMandateRequestFitsTheConsentCard() {
+    const registry = await AgentifiedSiteTest.registry();
+    const state = await AgentifiedSiteTest.arrangeDeliveryOrder(registry);
+    const base = AgentifiedSiteTest.mandateArguments(state);
+    const longest = {
+      ...base,
+      quoteId: "Q".repeat(60),
+      dropZone: "z".repeat(40),
+      parcelSize: "s".repeat(24),
+    };
+    const built = App.courierRequest({
+      orderId: base.orderId,
+      quoteId: longest.quoteId,
+      dropZone: longest.dropZone,
+      parcelSize: longest.parcelSize,
+      itemCount: 6,
+      feeCents: base.feeCents,
+    });
+    const before = await AgentifiedSiteTest.readState(registry);
+    const page = document.snapshot();
+    const receipt = await AgentifiedSiteTest.call(MANDATE_ACTION, longest, AgentifiedSiteTest.approve);
+    assert.equal(receipt.status, "succeeded");
+    assert.equal(receipt.result.ok, false);
+    assert.equal(receipt.result.field, "quoteId");
+    assert.ok(receipt.result.reason.includes(String(built.length)), "The refusal does not give the real length.");
+    assert.ok(receipt.result.reason.includes("140"));
+    assert.deepEqual(await AgentifiedSiteTest.readState(registry), before);
+    assert.deepEqual(document.snapshot(), page);
+    const ok = await AgentifiedSiteTest.call(MANDATE_ACTION, base, AgentifiedSiteTest.approve);
+    assert.equal(ok.result.ok, true, ok.result.reason);
+    assert.ok(ok.result.mandate.request.length <= 140);
+  }
+
+  /**
+   * Each condition of the hand-off check refuses on its own, from the operation itself,
+   * and changes nothing. Each case has exactly one problem.
+   */
+  static async testMandateRefusesEachCondition() {
+    const registry = await AgentifiedSiteTest.registry();
+    const state = await AgentifiedSiteTest.arrangeDeliveryOrder(registry);
+    const base = AgentifiedSiteTest.mandateArguments(state);
+    const cases = [
+      ["orderId", {...base, orderId: "DEMO-0000000000000"}, "not the latest order"],
+      ["expectedVersion", {...base, expectedVersion: state.cart.version - 1}, "changed since it was read"],
+      ["expectedVersion", {...base, expectedVersion: state.cart.version + 1}, "changed since it was read"],
+      ["itemCount", {...base, itemCount: 5}, "6 item(s), not 5"],
+      ["quoteId", {...base, quoteId: "   "}, "quote first"],
+      ["dropZone", {...base, dropZone: "  "}, "delivery zone"],
+      ["parcelSize", {...base, parcelSize: "  "}, "parcel size"],
+    ];
+    for (const [field, args, fragment] of cases) {
+      const before = await AgentifiedSiteTest.readState(registry);
+      const page = document.snapshot();
+      const receipt = await AgentifiedSiteTest.call(MANDATE_ACTION, args, AgentifiedSiteTest.approve);
+      assert.equal(receipt.status, "succeeded", `A ${field} refusal must come back as a result, not an error.`);
+      assert.equal(receipt.result.ok, false, `${field} was accepted.`);
+      assert.equal(receipt.result.field, field);
+      assert.ok(receipt.result.reason.includes(fragment), `${field}: ${receipt.result.reason}`);
+      assert.deepEqual(await AgentifiedSiteTest.readState(registry), before, `${field} changed the state.`);
+      assert.deepEqual(document.snapshot(), page, `${field} changed the page.`);
+      const content = AssistantMount.dialogContent({action: MANDATE_ACTION, origin: BASE, effect: "irreversible", arguments: args});
+      assert.equal(content.refusal, receipt.result.reason);
+    }
+  }
+
+  /**
+   * With no order, or an order for pickup, there is nothing to hand to a courier.
+   */
+  static async testMandateNeedsADeliveryOrder() {
+    const registry = await AgentifiedSiteTest.registry();
+    // The page keeps no operation that forgets an order: only a fresh tab has none.
+    // Clear the record the way a reload would, then build a cart with no order behind it.
+    App.page.latestOrder = null;
+    App.page.deliveryMandate = null;
+    App.page.renderMandate();
+    AgentifiedSiteTest.emptyCart();
+    await AgentifiedSiteTest.add(registry, "margherita", 1);
+    const empty = await AgentifiedSiteTest.readState(registry);
+    const noOrder = await AgentifiedSiteTest.call(MANDATE_ACTION, {
+      orderId: "DEMO-1",
+      quoteId: "Q-3d8373bb-68e9-4fd6-9d94-14bdf85b51f8",
+      dropZone: "north",
+      parcelSize: "medium",
+      itemCount: 1,
+      feeCents: 850,
+      expectedVersion: empty.cart.version,
+    }, AgentifiedSiteTest.approve);
+    assert.equal(noOrder.result.ok, false);
+    assert.equal(noOrder.result.field, "orderId");
+    assert.ok(noOrder.result.reason.includes("Place the order first"));
+
+    const before = await AgentifiedSiteTest.readState(registry);
+    const pickup = await AgentifiedSiteTest.call(IRREVERSIBLE_ACTION, {
+      ...AgentifiedSiteTest.irreversibleArguments(before),
+      fulfillment: "pickup",
+    }, AgentifiedSiteTest.approve);
+    assert.equal(pickup.result.ok, true, pickup.result.reason);
+    const state = await AgentifiedSiteTest.readState(registry);
+    const refused = await AgentifiedSiteTest.call(MANDATE_ACTION, {
+      ...AgentifiedSiteTest.mandateArguments(state),
+      itemCount: 1,
+    }, AgentifiedSiteTest.approve);
+    assert.equal(refused.result.ok, false);
+    assert.ok(refused.result.reason.includes("for pickup"));
+    assert.equal((await AgentifiedSiteTest.readState(registry)).deliveryMandate, null);
+  }
+
+  /**
+   * The authorization dialog shows the fee and the parcels it binds, from the call's own
+   * arguments, and building it changes nothing.
+   */
+  static async testMandateDialogShowsTheFee() {
+    const registry = await AgentifiedSiteTest.registry();
+    const state = await AgentifiedSiteTest.arrangeDeliveryOrder(registry);
+    const args = AgentifiedSiteTest.mandateArguments(state);
+    const before = await AgentifiedSiteTest.readState(registry);
+    const page = document.snapshot();
+    const content = AssistantMount.dialogContent({action: MANDATE_ACTION, origin: BASE, effect: "irreversible", arguments: args});
+    assert.equal(content.title, AssistantMount.DIALOGS[MANDATE_ACTION].title);
+    assert.equal(content.refusal, undefined);
+    assert.deepEqual(content.details, {
+      "Order": state.latestOrder.orderId,
+      "In the parcel": "1x Roasted Veg, 2x Margherita, 3x Garden Veggie — 6 item(s)",
+      "Delivery zone": "north",
+      "Parcel size": "medium",
+      "Courier fee": "$8.50",
+      "Pizza total": "$77.50",
+      "Your details": "The courier's own window asks for your name, phone and address. Nothing here is sent to them.",
+    });
+    const item = {action: MANDATE_ACTION, origin: BASE, effect: "irreversible", arguments: args};
+    assert.equal(await AgentifiedSiteTest.answerDialog(item, AssistantMount.DIALOGS[MANDATE_ACTION].confirm), true);
+    assert.equal(await AgentifiedSiteTest.answerDialog(item, AssistantMount.DIALOGS[MANDATE_ACTION].decline), false);
+    assert.equal(await AgentifiedSiteTest.answerDialog(item, null), false);
+    assert.deepEqual(await AgentifiedSiteTest.readState(registry), before);
+    assert.deepEqual(document.snapshot(), page);
+  }
+
+  /**
+   * The mandate tool is hidden without a confirmation callback, and a decline from a
+   * state where it would succeed stores nothing.
+   */
+  static async testMandateNeedsConfirmation() {
+    const loaded = await AgentifiedSiteTest.load();
+    const registry = await AgentifiedSiteTest.registry();
+    const model = new ScriptedModel([]);
+    const unconfirmed = AgentifiedSiteTest.context(loaded, registry, model, undefined);
+    assert.equal(await AgentifiedSiteTest.tool(loaded, unconfirmed, MANDATE_ACTION), undefined);
+
+    const state = await AgentifiedSiteTest.arrangeDeliveryOrder(registry);
+    const declining = AgentifiedSiteTest.context(loaded, registry, model, AgentifiedSiteTest.decline);
+    const entry = await AgentifiedSiteTest.tool(loaded, declining, MANDATE_ACTION);
+    assert.ok(entry, `website_${MANDATE_ACTION} should be offered when confirmation is available.`);
+    const before = await AgentifiedSiteTest.readState(registry);
+    const page = document.snapshot();
+    const receipt = await dispatchToolCall(declining, entry, AgentifiedSiteTest.mandateArguments(state), null, []);
+    assert.equal(receipt.status, "cancelled");
+    assert.deepEqual(await AgentifiedSiteTest.readState(registry), before);
+    assert.deepEqual(document.snapshot(), page);
+  }
+
+  /**
+   * A new order voids the authorization, and the mandate never carries the visitor's
+   * name or address: those belong in the courier's own window.
+   */
+  static async testNewOrderVoidsTheMandateAndKeepsDetailsOut() {
+    const registry = await AgentifiedSiteTest.registry();
+    const state = await AgentifiedSiteTest.arrangeDeliveryOrder(registry);
+    const ok = await AgentifiedSiteTest.call(MANDATE_ACTION, AgentifiedSiteTest.mandateArguments(state), AgentifiedSiteTest.approve);
+    assert.equal(ok.result.ok, true, ok.result.reason);
+    const mandate = ok.result.mandate;
+    assert.ok(state.latestOrder.name.length > 0 && state.latestOrder.address.length > 0);
+    for (const secret of [state.latestOrder.name, state.latestOrder.address]) {
+      for (const word of secret.split(/\s+/).filter((part) => part.length > 3)) {
+        assert.ok(!JSON.stringify(mandate).includes(word), `The mandate carries ${word}.`);
+      }
+    }
+    await AgentifiedSiteTest.add(registry, "pepperoni", 1);
+    const next = await AgentifiedSiteTest.readState(registry);
+    const ordered = await AgentifiedSiteTest.call(IRREVERSIBLE_ACTION, AgentifiedSiteTest.irreversibleArguments(next), AgentifiedSiteTest.approve);
+    assert.equal(ordered.result.ok, true, ordered.result.reason);
+    const after = await AgentifiedSiteTest.readState(registry);
+    assert.equal(after.deliveryMandate, null);
+    assert.equal(document.getElementById("delivery-mandate").hidden, true);
+  }
+
+  /**
+   * The assistant's approved authorization stores exactly what the page's own operation
+   * stores for the same input.
+   */
+  static async testMandateMatchesThePageOperation() {
+    const registry = await AgentifiedSiteTest.registry();
+    const state = await AgentifiedSiteTest.arrangeDeliveryOrder(registry);
+    const args = AgentifiedSiteTest.mandateArguments(state);
+    const viaTool = await AgentifiedSiteTest.call(MANDATE_ACTION, args, AgentifiedSiteTest.approve);
+    assert.equal(viaTool.result.ok, true, viaTool.result.reason);
+    const viaPage = App.page.authorizeDelivery(args);
+    assert.equal(viaPage.ok, true, viaPage.reason);
+    assert.deepEqual(viaTool.result.mandate, viaPage.mandate);
+  }
 }
 
 AgentifiedSiteTest.fillPageText(PAGE_HTML, document);
@@ -2096,3 +2371,12 @@ test("an add and an order work in one visitor message", AgentifiedSiteTest.testA
 test("each text field at its limit is accepted", AgentifiedSiteTest.testTextLimits);
 // This one compares the assistant's order with the page form's, so it runs last.
 test("an approved order stores the same record as the page's own form", AgentifiedSiteTest.testApprovedIrreversibleCall);
+// M2: the delivery mandate. These place their own orders, so they run after the order tests.
+test("the mandate binds the order, its item count and the agreed fee", AgentifiedSiteTest.testMandateBindsTheOrderAndFee);
+test("the page keeps the courier request inside the consent card's 140 characters", AgentifiedSiteTest.testMandateRequestFitsTheConsentCard);
+test("each hand-off condition refuses on its own and changes nothing", AgentifiedSiteTest.testMandateRefusesEachCondition);
+test("a mandate needs a placed delivery order", AgentifiedSiteTest.testMandateNeedsADeliveryOrder);
+test("the authorization dialog shows the fee and the parcels", AgentifiedSiteTest.testMandateDialogShowsTheFee);
+test("the mandate needs confirmation and a decline stores nothing", AgentifiedSiteTest.testMandateNeedsConfirmation);
+test("a new order voids the mandate, which carries no visitor details", AgentifiedSiteTest.testNewOrderVoidsTheMandateAndKeepsDetailsOut);
+test("an approved mandate matches the page's own operation", AgentifiedSiteTest.testMandateMatchesThePageOperation);

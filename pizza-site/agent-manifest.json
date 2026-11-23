@@ -79,6 +79,7 @@
       "add_to_cart",
       "set_cart_quantities",
       "place_demo_order",
+      "authorize_delivery",
       "place_order"
     ]
   }
