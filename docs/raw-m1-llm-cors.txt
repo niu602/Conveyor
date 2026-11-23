@@ -1,0 +1,31 @@
+CORS preflight check — 2026-11-23
+Origin: http://127.0.0.1:8084
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: authorization,content-type
+
+=== OPTIONS https://discovery-api.intern-ai.org.cn/v1/chat/completions ===
+HTTP 200
+  Access-Control-Allow-Origin: http://127.0.0.1:8084
+  Access-Control-Allow-Credentials: true
+  Access-Control-Allow-Methods: GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH
+  Access-Control-Allow-Headers: authorization,content-type
+  Access-Control-Max-Age: 86400
+  Access-Control-Expose-Headers: *
+
+=== OPTIONS https://api.deepseek.com/v1/chat/completions ===
+HTTP 200
+  Access-Control-Allow-Credentials: true
+  Access-Control-Allow-Methods: POST
+  Access-Control-Allow-Headers: authorization,content-type
+  Access-Control-Allow-Origin: http://127.0.0.1:8084
+
+=== OPTIONS https://discovery-api.intern-ai.org.cn/v1/models ===
+HTTP 405
+
+=== OPTIONS https://api.deepseek.com/v1/models ===
+HTTP 200
+  Access-Control-Allow-Credentials: true
+  Access-Control-Allow-Methods: POST
+  Access-Control-Allow-Headers: authorization,content-type
+  Access-Control-Allow-Origin: http://127.0.0.1:8084
+

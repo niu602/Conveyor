@@ -1,0 +1,259 @@
+{
+  "note": "Excerpt of the pizza site execution trace: partner calls, peer loads and the composition-limit note. Exported 2026-11-23 from the real Chrome run. No API key is present in the runtime trace.",
+  "generatedAt": "2026-11-23T04:47:53.797Z",
+  "totalEvents": 2472,
+  "events": [
+    {
+      "phase": "note",
+      "kind": "action_catalog",
+      "count": 4,
+      "issues": [],
+      "seq": 1,
+      "t": 133.19999999925494,
+      "wall": 1795407931663
+    },
+    {
+      "phase": "start",
+      "id": "s595",
+      "kind": "remote_fetch",
+      "parent": "s594",
+      "status": "running",
+      "origin": "127.0.0.1:8084",
+      "peerOrigin": "localhost:8085",
+      "url": "http://localhost:8085/courier_dispatch",
+      "startedAt": 388378.5,
+      "seq": 595,
+      "t": 388378.5,
+      "wall": 1795408319909
+    },
+    {
+      "phase": "end",
+      "id": "s595",
+      "kind": "remote_fetch",
+      "parent": "s594",
+      "status": "ok",
+      "origin": "127.0.0.1:8084",
+      "peerOrigin": "localhost:8085",
+      "url": "http://localhost:8085/courier_dispatch",
+      "startedAt": 388378.5,
+      "network": "courier_dispatch",
+      "fetchedUrls": {
+        "manifest": "http://localhost:8085/agent-manifest.json",
+        "hocon": "http://localhost:8085/./courier_dispatch.network.json",
+        "toolBundle": null
+      },
+      "brand": "Conveyor Courier Assistant",
+      "durationMs": 731,
+      "seq": 596,
+      "t": 389109.5,
+      "wall": 1795408320640
+    },
+    {
+      "phase": "start",
+      "id": "s597",
+      "kind": "remote_call",
+      "parent": "s594",
+      "status": "running",
+      "origin": "127.0.0.1:8084",
+      "peerOrigin": "localhost:8085",
+      "method": "fetch-and-run-locally",
+      "fetchedUrls": {
+        "manifest": "http://localhost:8085/agent-manifest.json",
+        "hocon": "http://localhost:8085/./courier_dispatch.network.json",
+        "toolBundle": null
+      },
+      "requestPayload": {
+        "user_message": {
+          "type": 2,
+          "text": "Quote request only, no dispatch yet. Pick up from Little Oven Pizza, 9 Ropewalk, Marrow Point. Drop zone: North town. Parcel: two pizza boxes, medium size. Item count: 2. Items: two Margherita pizzas. Our order number: DEMO-1795408226324. What would the courier charge to collect and bring this?"
+        },
+        "sly_data": {},
+        "chat_filter": {
+          "chat_filter_type": "MINIMAL"
+        }
+      },
+      "network": "courier_dispatch",
+      "brand": "Conveyor Courier Assistant",
+      "startedAt": 389110.9000000004,
+      "seq": 597,
+      "t": 389110.9000000004,
+      "wall": 1795408320641
+    },
+    {
+      "phase": "end",
+      "id": "s597",
+      "kind": "remote_call",
+      "parent": "s594",
+      "status": "ok",
+      "origin": "127.0.0.1:8084",
+      "peerOrigin": "localhost:8085",
+      "method": "fetch-and-run-locally",
+      "fetchedUrls": {
+        "manifest": "http://localhost:8085/agent-manifest.json",
+        "hocon": "http://localhost:8085/./courier_dispatch.network.json",
+        "toolBundle": null
+      },
+      "requestPayload": {
+        "user_message": {
+          "type": 2,
+          "text": "Quote request only, no dispatch yet. Pick up from Little Oven Pizza, 9 Ropewalk, Marrow Point. Drop zone: North town. Parcel: two pizza boxes, medium size. Item count: 2. Items: two Margherita pizzas. Our order number: DEMO-1795408226324. What would the courier charge to collect and bring this?"
+        },
+        "sly_data": {},
+        "chat_filter": {
+          "chat_filter_type": "MINIMAL"
+        }
+      },
+      "network": "courier_dispatch",
+      "brand": "Conveyor Courier Assistant",
+      "startedAt": 389110.9000000004,
+      "responsePreview": "**Quote — no dispatch placed**\n\n| | |\n|---|---|\n| Drop zone | North town |\n| Parcel | Medium box (up to 6 items) — 2 items |\n| Courier fee | **$6.50** ($4.50 zone base + $2.00 medium box; no extra-item charge) |\n| Trip time | **22 minutes** |\n| Quote valid | 15 minutes (until about 04:47 today, Mon ",
+      "type": 100,
+      "durationMs": 8674.199999999255,
+      "seq": 827,
+      "t": 397785.0999999996,
+      "wall": 1795408329315
+    },
+    {
+      "phase": "note",
+      "kind": "composition_limit",
+      "parent": "s1114",
+      "origin": "127.0.0.1:8084",
+      "target": "http://localhost:8085/courier_dispatch",
+      "reason": "the composition deadline was reached",
+      "remoteCalls": 0,
+      "seq": 1115,
+      "t": 660220.6999999993,
+      "wall": 1795408591751
+    },
+    {
+      "phase": "start",
+      "id": "s1378",
+      "kind": "remote_call",
+      "parent": "s1377",
+      "status": "running",
+      "origin": "127.0.0.1:8084",
+      "peerOrigin": "localhost:8085",
+      "method": "fetch-and-run-locally",
+      "fetchedUrls": {
+        "manifest": "http://localhost:8085/agent-manifest.json",
+        "hocon": "http://localhost:8085/./courier_dispatch.network.json",
+        "toolBundle": null
+      },
+      "requestPayload": {
+        "user_message": {
+          "type": 2,
+          "text": "Courier for Little Oven order DEMO-1795408226324: 2 Margherita pizzas, North town, medium box, 2 items, quoted fee $6.50."
+        },
+        "sly_data": {},
+        "chat_filter": {
+          "chat_filter_type": "MINIMAL"
+        }
+      },
+      "network": "courier_dispatch",
+      "brand": "Conveyor Courier Assistant",
+      "startedAt": 807399.6999999993,
+      "seq": 1378,
+      "t": 807399.6999999993,
+      "wall": 1795408738930
+    },
+    {
+      "phase": "end",
+      "id": "s1378",
+      "kind": "remote_call",
+      "parent": "s1377",
+      "status": "ok",
+      "origin": "127.0.0.1:8084",
+      "peerOrigin": "localhost:8085",
+      "method": "fetch-and-run-locally",
+      "fetchedUrls": {
+        "manifest": "http://localhost:8085/agent-manifest.json",
+        "hocon": "http://localhost:8085/./courier_dispatch.network.json",
+        "toolBundle": null
+      },
+      "requestPayload": {
+        "user_message": {
+          "type": 2,
+          "text": "Courier for Little Oven order DEMO-1795408226324: 2 Margherita pizzas, North town, medium box, 2 items, quoted fee $6.50."
+        },
+        "sly_data": {},
+        "chat_filter": {
+          "chat_filter_type": "MINIMAL"
+        }
+      },
+      "network": "courier_dispatch",
+      "brand": "Conveyor Courier Assistant",
+      "startedAt": 807399.6999999993,
+      "responsePreview": "Done — the run is on the desk.\n\n| Job | Status | Fee |\n|---|---|---|\n| J-12fa5785-c62c-46b4-a66d-7f0ab832394e | assigned | $6.50 |\n\nThe quote matched at $6.50 (North town, medium box, 2 items), and the courier's window has closed after the visitor entered their own details. Give me the job number an",
+      "type": 100,
+      "durationMs": 69196.09999999963,
+      "seq": 1514,
+      "t": 876595.7999999989,
+      "wall": 1795408808126
+    },
+    {
+      "phase": "start",
+      "id": "s2009",
+      "kind": "remote_call",
+      "parent": "s2008",
+      "status": "running",
+      "origin": "127.0.0.1:8084",
+      "peerOrigin": "localhost:8085",
+      "method": "fetch-and-run-locally",
+      "fetchedUrls": {
+        "manifest": "http://localhost:8085/agent-manifest.json",
+        "hocon": "http://localhost:8085/./courier_dispatch.network.json",
+        "toolBundle": null
+      },
+      "requestPayload": {
+        "user_message": {
+          "type": 2,
+          "text": "Please report the current status of courier job J-12fa5785-c62c-46b4-a66d-7f0ab832394e (Little Oven Pizza order DEMO-1795408226324)."
+        },
+        "sly_data": {},
+        "chat_filter": {
+          "chat_filter_type": "MINIMAL"
+        }
+      },
+      "network": "courier_dispatch",
+      "brand": "Conveyor Courier Assistant",
+      "startedAt": 1254311.9000000004,
+      "seq": 2009,
+      "t": 1254312,
+      "wall": 1795409185842
+    },
+    {
+      "phase": "end",
+      "id": "s2009",
+      "kind": "remote_call",
+      "parent": "s2008",
+      "status": "ok",
+      "origin": "127.0.0.1:8084",
+      "peerOrigin": "localhost:8085",
+      "method": "fetch-and-run-locally",
+      "fetchedUrls": {
+        "manifest": "http://localhost:8085/agent-manifest.json",
+        "hocon": "http://localhost:8085/./courier_dispatch.network.json",
+        "toolBundle": null
+      },
+      "requestPayload": {
+        "user_message": {
+          "type": 2,
+          "text": "Please report the current status of courier job J-12fa5785-c62c-46b4-a66d-7f0ab832394e (Little Oven Pizza order DEMO-1795408226324)."
+        },
+        "sly_data": {},
+        "chat_filter": {
+          "chat_filter_type": "MINIMAL"
+        }
+      },
+      "network": "courier_dispatch",
+      "brand": "Conveyor Courier Assistant",
+      "startedAt": 1254311.9000000004,
+      "responsePreview": "**Job J-12fa5785-c62c-46b4-a66d-7f0ab832394e** — status: **assigned**\n\n| Field | Value |\n|---|---|\n| Status | assigned |\n| Zone | north |\n| Parcel | medium, 2 items (2x Margherita) |\n| Fee | $6.50 |\n| Trip time | 22 minutes |\n| Pizza order ref | DEMO-1795408226324 |\n| Assigned at | 2026-11-23T04:40:",
+      "type": 100,
+      "durationMs": 3920.199999999255,
+      "seq": 2199,
+      "t": 1258232.0999999996,
+      "wall": 1795409189762
+    }
+  ]
+}

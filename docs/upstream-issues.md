@@ -7,6 +7,10 @@ Only the check behaviour itself is reported; nothing about our project appears i
 
 - **URL:** <https://github.com/cognizant-ai-labs/agentic-web/issues/70>
 - **State at filing:** open, author `niu602`
+- **Re-checked 2026-11-23:** still `open`, `comments=0`, no labels,
+  `updated_at=2026-11-22T10:01:10Z`. No maintainer response yet, so the local
+  `partner_rules differs` warning stands and the pizza build is still accepted as
+  "zero errors plus this one noted warning".
 - **Title:** `[bug] build_network.mjs --check false-positives "partner_rules differs" on Windows (CRLF) checkouts`
 - **Filed against:** `f154be8f43fb6152be221279cada7da6a1e931ea`
 
