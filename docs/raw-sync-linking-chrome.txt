@@ -1,0 +1,154 @@
+Output: D:\Conveyor\_baseline\linking-chrome-sync
+Site guesthouse: D:\OpenAgenticWeb\examples\guesthouse_agentified
+Site tours: D:\OpenAgenticWeb\examples\harbor_tours_agentified
+Site caller: D:\OpenAgenticWeb\tests\linking\fixtures\caller_site (test site)
+Site pizza: D:\OpenAgenticWeb\examples\marrow_point_pizza_agentified
+Mock router: http://127.0.0.1:8791/v1
+Serving the fixture caller at http://localhost:8082/ from D:\Conveyor\_baseline\linking-chrome-sync\sites\caller_site
+Serving the guesthouse at http://127.0.0.1:8080/ from D:\OpenAgenticWeb\examples\guesthouse_agentified
+Serving the tour site at http://localhost:8081/ from D:\OpenAgenticWeb\examples\harbor_tours_agentified
+Serving the pizza site at http://[::1]:8083/ from D:\OpenAgenticWeb\examples\marrow_point_pizza_agentified
+Chrome: C:\Program Files\Google\Chrome\Application\chrome.exe
+PASS C1 caller-to-gh
+  - visitor model; every model call expected on gpt-5.2
+  - consent to the partner's answer: 542 ms
+  - the partner served 21 requests; the caller's own page had 1 website_* tools; the partner's manifest lists 8
+  - the calling page's action note after the call: "Remote action bridge: No actions exposed to this caller. Check the remote site's action sources and callerOrigins; host-page forms are local only."
+  - the partner's bridge shares with this caller: nothing
+PASS C2 caller-to-gh
+  - no visitor model; every model call expected on gpt-4.1-nano
+  - consent to the partner's answer: 463 ms
+  - the partner served 21 requests; the caller's own page had 1 website_* tools; the partner's manifest lists 8
+  - the calling page's action note after the call: "Remote action bridge: No actions exposed to this caller. Check the remote site's action sources and callerOrigins; host-page forms are local only."
+  - the partner's bridge shares with this caller: nothing
+PASS C3 caller-to-gh
+PASS C4 gh-to-tours
+  - visitor model; every model call expected on gpt-5.2
+  - consent to the partner's answer: 535 ms
+  - the partner served 21 requests; the caller's own page had 8 website_* tools; the partner's manifest lists 9
+  - the calling page's action note after the call: "You confirm actions that cannot be undone before they run. Other actions run right away."
+  - the partner's bridge shares with this caller: get_tours_state, get_good_to_know, find_departures, book_departure
+Serving the tour site at http://localhost:8081/ from D:\Conveyor\_baseline\linking-chrome-sync\sites\tours_other_model
+Serving the tour site at http://localhost:8081/ from D:\OpenAgenticWeb\examples\harbor_tours_agentified
+PASS C2 gh-to-tours
+  - no visitor model; every model call expected on alibaba/qwen3.8-flash
+  - consent to the partner's answer: 600 ms
+  - the partner served 21 requests; the caller's own page had 8 website_* tools; the partner's manifest lists 9
+  - both sites name alibaba/qwen3.8-flash, so the partner was served naming gpt-4o-mini, to show which site chose the partner's model
+  - the calling page's action note after the call: "You confirm actions that cannot be undone before they run. Other actions run right away."
+  - the partner's bridge shares with this caller: get_tours_state, get_good_to_know, find_departures, book_departure
+PASS C3 gh-to-tours
+PASS C9 gh-to-tours
+  - the partner's agent called website_get_tours_state; the partner served 40 requests
+PASS C10 gh-to-tours
+  - the partner's agent called website_book_departure; the window booked or ordered
+PASS C11 gh-to-tours
+  - the partner's agent called website_book_departure; the window was cancelled
+PASS C4 tours-to-gh
+  - visitor model; every model call expected on gpt-5.2
+  - consent to the partner's answer: 563 ms
+  - the partner served 21 requests; the caller's own page had 8 website_* tools; the partner's manifest lists 8
+  - the calling page's action note after the call: "You confirm actions that cannot be undone before they run. Other actions run right away."
+  - the partner's bridge shares with this caller: get_guesthouse_state, get_house_policies, search_rooms, quote_stay
+Serving the guesthouse at http://127.0.0.1:8080/ from D:\Conveyor\_baseline\linking-chrome-sync\sites\guesthouse_other_model
+Serving the guesthouse at http://127.0.0.1:8080/ from D:\OpenAgenticWeb\examples\guesthouse_agentified
+PASS C2 tours-to-gh
+  - no visitor model; every model call expected on alibaba/qwen3.8-flash
+  - consent to the partner's answer: 752 ms
+  - the partner served 21 requests; the caller's own page had 8 website_* tools; the partner's manifest lists 8
+  - both sites name alibaba/qwen3.8-flash, so the partner was served naming gpt-4o-mini, to show which site chose the partner's model
+  - the calling page's action note after the call: "You confirm actions that cannot be undone before they run. Other actions run right away."
+  - the partner's bridge shares with this caller: get_guesthouse_state, get_house_policies, search_rooms, quote_stay
+PASS C3 tours-to-gh
+PASS C9 tours-to-gh
+  - the partner's agent called website_get_guesthouse_state; the partner served 40 requests
+PASS C4 gh-to-pizza
+  - visitor model; every model call expected on gpt-5.2
+  - consent to the partner's answer: 477 ms
+  - the partner served 15 requests; the caller's own page had 8 website_* tools; the partner's manifest lists 5
+  - the calling page's action note after the call: "You confirm actions that cannot be undone before they run. Other actions run right away."
+  - the partner's bridge shares with this caller: get_restaurant_state, place_order
+Serving the pizza site at http://[::1]:8083/ from D:\Conveyor\_baseline\linking-chrome-sync\sites\pizza_other_model
+Serving the pizza site at http://[::1]:8083/ from D:\OpenAgenticWeb\examples\marrow_point_pizza_agentified
+PASS C2 gh-to-pizza
+  - no visitor model; every model call expected on alibaba/qwen3.8-flash
+  - consent to the partner's answer: 538 ms
+  - the partner served 15 requests; the caller's own page had 8 website_* tools; the partner's manifest lists 5
+  - both sites name alibaba/qwen3.8-flash, so the partner was served naming gpt-4o-mini, to show which site chose the partner's model
+  - the calling page's action note after the call: "You confirm actions that cannot be undone before they run. Other actions run right away."
+  - the partner's bridge shares with this caller: get_restaurant_state, place_order
+PASS C3 gh-to-pizza
+PASS C9 gh-to-pizza
+  - the partner's agent called website_get_restaurant_state; the partner served 28 requests
+PASS C10 gh-to-pizza
+  - the partner's agent called website_place_order; the window booked or ordered
+PASS C11 gh-to-pizza
+  - the partner's agent called website_place_order; the window was cancelled
+PASS C4 pizza-to-gh
+  - visitor model; every model call expected on gpt-5.2
+  - consent to the partner's answer: 628 ms
+  - the partner served 21 requests; the caller's own page had 4 website_* tools; the partner's manifest lists 8
+  - the calling page's action note after the call: "You confirm actions that cannot be undone before they run. Other actions run right away."
+  - the partner's bridge shares with this caller: get_guesthouse_state, get_house_policies, search_rooms, quote_stay
+Serving the guesthouse at http://127.0.0.1:8080/ from D:\Conveyor\_baseline\linking-chrome-sync\sites\guesthouse_other_model
+Serving the guesthouse at http://127.0.0.1:8080/ from D:\OpenAgenticWeb\examples\guesthouse_agentified
+PASS C2 pizza-to-gh
+  - no visitor model; every model call expected on alibaba/qwen3.8-flash
+  - consent to the partner's answer: 691 ms
+  - the partner served 21 requests; the caller's own page had 4 website_* tools; the partner's manifest lists 8
+  - both sites name alibaba/qwen3.8-flash, so the partner was served naming gpt-4o-mini, to show which site chose the partner's model
+  - the calling page's action note after the call: "You confirm actions that cannot be undone before they run. Other actions run right away."
+  - the partner's bridge shares with this caller: get_guesthouse_state, get_house_policies, search_rooms, quote_stay
+PASS C3 pizza-to-gh
+PASS C9 pizza-to-gh
+  - the partner's agent called website_get_guesthouse_state; the partner served 40 requests
+PASS C4 tours-to-pizza
+  - visitor model; every model call expected on gpt-5.2
+  - consent to the partner's answer: 480 ms
+  - the partner served 15 requests; the caller's own page had 8 website_* tools; the partner's manifest lists 5
+  - the calling page's action note after the call: "You confirm actions that cannot be undone before they run. Other actions run right away."
+  - the partner's bridge shares with this caller: get_restaurant_state
+Serving the pizza site at http://[::1]:8083/ from D:\Conveyor\_baseline\linking-chrome-sync\sites\pizza_other_model
+Serving the pizza site at http://[::1]:8083/ from D:\OpenAgenticWeb\examples\marrow_point_pizza_agentified
+PASS C2 tours-to-pizza
+  - no visitor model; every model call expected on alibaba/qwen3.8-flash
+  - consent to the partner's answer: 648 ms
+  - the partner served 15 requests; the caller's own page had 8 website_* tools; the partner's manifest lists 5
+  - both sites name alibaba/qwen3.8-flash, so the partner was served naming gpt-4o-mini, to show which site chose the partner's model
+  - the calling page's action note after the call: "You confirm actions that cannot be undone before they run. Other actions run right away."
+  - the partner's bridge shares with this caller: get_restaurant_state
+PASS C3 tours-to-pizza
+PASS C9 tours-to-pizza
+  - the partner's agent called website_get_restaurant_state; the partner served 28 requests
+PASS C4 pizza-to-tours
+  - visitor model; every model call expected on gpt-5.2
+  - consent to the partner's answer: 561 ms
+  - the partner served 21 requests; the caller's own page had 4 website_* tools; the partner's manifest lists 9
+  - the calling page's action note after the call: "You confirm actions that cannot be undone before they run. Other actions run right away."
+  - the partner's bridge shares with this caller: get_tours_state, get_good_to_know, find_departures
+Serving the tour site at http://localhost:8081/ from D:\Conveyor\_baseline\linking-chrome-sync\sites\tours_other_model
+Serving the tour site at http://localhost:8081/ from D:\OpenAgenticWeb\examples\harbor_tours_agentified
+PASS C2 pizza-to-tours
+  - no visitor model; every model call expected on alibaba/qwen3.8-flash
+  - consent to the partner's answer: 592 ms
+  - the partner served 21 requests; the caller's own page had 4 website_* tools; the partner's manifest lists 9
+  - both sites name alibaba/qwen3.8-flash, so the partner was served naming gpt-4o-mini, to show which site chose the partner's model
+  - the calling page's action note after the call: "You confirm actions that cannot be undone before they run. Other actions run right away."
+  - the partner's bridge shares with this caller: get_tours_state, get_good_to_know, find_departures
+PASS C3 pizza-to-tours
+PASS C9 pizza-to-tours
+  - the partner's agent called website_get_tours_state; the partner served 40 requests
+PASS C5 caller
+PASS C6 caller
+  - site modules the bridge loaded: none
+PASS C5 guesthouse
+PASS C6 guesthouse
+  - site modules the bridge loaded: /js/booking-page.js, /js/guesthouse-data.js, /js/house-policies.js, /js/reservation-book.js, /js/booking-facts.js, /js/calendar.js, /js/price-calculator.js, /js/stay-rules.js
+PASS C5 tours
+PASS C6 tours
+  - site modules the bridge loaded: /js/good-to-know.js, /js/trip-book.js, /js/tours-page.js, /js/calendar.js, /js/fare-calculator.js, /js/tour-data.js, /js/trip-rules.js
+PASS C5 pizza
+PASS C6 pizza
+  - site modules the bridge loaded: /script.js
+39 passed, 0 failed, 0 skipped, 0 for information.
+Report: D:\Conveyor\_baseline\linking-chrome-sync\report.json

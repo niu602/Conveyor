@@ -1,0 +1,275 @@
+TAP version 13
+# Subtest: the network is valid and calls no partner
+ok 1 - the network is valid and calls no partner
+  ---
+  duration_ms: 5.0075
+  type: 'test'
+  ...
+# Subtest: every agent tool is registered by the page or the bridge
+ok 2 - every agent tool is registered by the page or the bridge
+  ---
+  duration_ms: 44.1132
+  type: 'test'
+  ...
+# Subtest: the read action runs as a model tool within the budget
+ok 3 - the read action runs as a model tool within the budget
+  ---
+  duration_ms: 18.6956
+  type: 'test'
+  ...
+# Each model call sends 5857 characters of system prompt and 3837 of tool definitions.
+# Subtest: the read gives the fee table, the rules and each page fact
+ok 4 - the read gives the fee table, the rules and each page fact
+  ---
+  duration_ms: 2.449
+  type: 'test'
+  ...
+# Subtest: each quote matches a fee worked out by hand
+ok 5 - each quote matches a fee worked out by hand
+  ---
+  duration_ms: 2.7834
+  type: 'test'
+  ...
+# Subtest: the desk refuses a zone or parcel it cannot take
+ok 6 - the desk refuses a zone or parcel it cannot take
+  ---
+  duration_ms: 1.1037
+  type: 'test'
+  ...
+# Subtest: a lookup reads one job and refuses a near miss
+ok 7 - a lookup reads one job and refuses a near miss
+  ---
+  duration_ms: 1.0207
+  type: 'test'
+  ...
+# Subtest: the cancellation dialog shows the job and only its confirm confirms
+ok 8 - the cancellation dialog shows the job and only its confirm confirms
+  ---
+  duration_ms: 7.0984
+  type: 'test'
+  ...
+# Subtest: each refused cancellation opens no dialog
+ok 9 - each refused cancellation opens no dialog
+  ---
+  duration_ms: 1.1738
+  type: 'test'
+  ...
+# Subtest: an approved cancellation matches the page's own form
+ok 10 - an approved cancellation matches the page's own form
+  ---
+  duration_ms: 1.3212
+  type: 'test'
+  ...
+# Subtest: a stale status changes nothing
+ok 11 - a stale status changes nothing
+  ---
+  duration_ms: 0.3565
+  type: 'test'
+  ...
+# Subtest: the irreversible tool needs a confirmation callback
+ok 12 - the irreversible tool needs a confirmation callback
+  ---
+  duration_ms: 2.893
+  type: 'test'
+  ...
+# Subtest: the bridge shares reads and one windowed write with the pizza site
+ok 13 - the bridge shares reads and one windowed write with the pizza site
+  ---
+  duration_ms: 1.0427
+  type: 'test'
+  ...
+# Subtest: no personal detail leaves the desk
+ok 14 - no personal detail leaves the desk
+  ---
+  duration_ms: 1.6177
+  type: 'test'
+  ...
+# Subtest: a partner's action gets the runtime's dialog
+ok 15 - a partner's action gets the runtime's dialog
+  ---
+  duration_ms: 0.1354
+  type: 'test'
+  ...
+# Subtest: a bundled form runs nothing
+ok 16 - a bundled form runs nothing
+  ---
+  duration_ms: 0.1439
+  type: 'test'
+  ...
+# Subtest: other bundles get the runtime's dialog
+ok 17 - other bundles get the runtime's dialog
+  ---
+  duration_ms: 0.1326
+  type: 'test'
+  ...
+# Subtest: the consent card takes focus, then gives it back
+ok 18 - the consent card takes focus, then gives it back
+  ---
+  duration_ms: 0.208
+  type: 'test'
+  ...
+# Subtest: the consent card leaves focus in the page's own form
+ok 19 - the consent card leaves focus in the page's own form
+  ---
+  duration_ms: 0.0942
+  type: 'test'
+  ...
+# Subtest: the greeting promises only what the desk does
+ok 20 - the greeting promises only what the desk does
+  ---
+  duration_ms: 0.1119
+  type: 'test'
+  ...
+# Subtest: a lost answer that reads back as recorded settles as the job, sent once
+ok 21 - a lost answer that reads back as recorded settles as the job, sent once
+  ---
+  duration_ms: 1.854
+  type: 'test'
+  ...
+# Subtest: a lost answer that reads back as absent settles as nothing recorded
+ok 22 - a lost answer that reads back as absent settles as nothing recorded
+  ---
+  duration_ms: 0.2458
+  type: 'test'
+  ...
+# Subtest: a lost answer the desk cannot read either stays unknown, and isn't sent again
+ok 23 - a lost answer the desk cannot read either stays unknown, and isn't sent again
+  ---
+  duration_ms: 0.2277
+  type: 'test'
+  ...
+# Subtest: a refusal from the outcome read is not an answer about the job
+ok 24 - a refusal from the outcome read is not an answer about the job
+  ---
+  duration_ms: 0.762
+  type: 'test'
+  ...
+# Subtest: a desk failure marked unknown is not a refusal the visitor may repeat
+ok 25 - a desk failure marked unknown is not a refusal the visitor may repeat
+  ---
+  duration_ms: 0.1785
+  type: 'test'
+  ...
+# Subtest: a real refusal re-opens the form, and is not settled by a read
+ok 26 - a real refusal re-opens the form, and is not settled by a read
+  ---
+  duration_ms: 0.1587
+  type: 'test'
+  ...
+# Subtest: bad details never reach the desk, and the window stays open
+ok 27 - bad details never reach the desk, and the window stays open
+  ---
+  duration_ms: 0.1881
+  type: 'test'
+  ...
+# Subtest: settle keeps the three outcomes apart for every answer the desk can give
+ok 28 - settle keeps the three outcomes apart for every answer the desk can give
+  ---
+  duration_ms: 0.2424
+  type: 'test'
+  ...
+# Subtest: the settled result and the window's own notice carry no visitor details
+ok 29 - the settled result and the window's own notice carry no visitor details
+  ---
+  duration_ms: 0.3744
+  type: 'test'
+  ...
+# Subtest: the client marks a failed intake unknown and keeps a refusal as a refusal
+ok 30 - the client marks a failed intake unknown and keeps a refusal as a refusal
+  ---
+  duration_ms: 0.9502
+  type: 'test'
+  ...
+# Subtest: the outcome read asks by key and writes nothing
+ok 31 - the outcome read asks by key and writes nothing
+  ---
+  duration_ms: 0.1997
+  type: 'test'
+  ...
+# Subtest: the intake answers only the origins it serves
+ok 32 - the intake answers only the origins it serves
+  ---
+  duration_ms: 21.485
+  type: 'test'
+  ...
+# Subtest: a quote prices the parcel and holds it for fifteen minutes
+ok 33 - a quote prices the parcel and holds it for fifteen minutes
+  ---
+  duration_ms: 1.2659
+  type: 'test'
+  ...
+# Subtest: the same idempotency key lands one job, however often it is sent
+ok 34 - the same idempotency key lands one job, however often it is sent
+  ---
+  duration_ms: 2.3841
+  type: 'test'
+  ...
+# Subtest: an unknown dispatch is settled by reading its key, and the read records nothing
+ok 35 - an unknown dispatch is settled by reading its key, and the read records nothing
+  ---
+  duration_ms: 1.7857
+  type: 'test'
+  ...
+# Subtest: settling by key leaves one job, and a replay after it still returns that job
+ok 36 - settling by key leaves one job, and a replay after it still returns that job
+  ---
+  duration_ms: 1.542
+  type: 'test'
+  ...
+# Subtest: the outcome read needs a key, serves only its callers and carries no details
+ok 37 - the outcome read needs a key, serves only its callers and carries no details
+  ---
+  duration_ms: 1.7592
+  type: 'test'
+  ...
+# Subtest: two writers racing on one key still leave one job
+ok 38 - two writers racing on one key still leave one job
+  ---
+  duration_ms: 0.6531
+  type: 'test'
+  ...
+# Subtest: the read-only check refuses what the dispatch would refuse, and records nothing
+ok 39 - the read-only check refuses what the dispatch would refuse, and records nothing
+  ---
+  duration_ms: 1.0725
+  type: 'test'
+  ...
+# Subtest: the dispatch refuses a changed fee, an expired quote and bad details
+ok 40 - the dispatch refuses a changed fee, an expired quote and bad details
+  ---
+  duration_ms: 1.9595
+  type: 'test'
+  ...
+# Subtest: a job receipt carries no name, phone, address or note
+ok 41 - a job receipt carries no name, phone, address or note
+  ---
+  duration_ms: 1.3837
+  type: 'test'
+  ...
+# Subtest: a job moves forward one step and cancels only before pickup
+ok 42 - a job moves forward one step and cancels only before pickup
+  ---
+  duration_ms: 2.2914
+  type: 'test'
+  ...
+# Subtest: the D1 store enforces the key with the same shape as the memory store
+ok 43 - the D1 store enforces the key with the same shape as the memory store
+  ---
+  duration_ms: 0.4837
+  type: 'test'
+  ...
+# Subtest: the fee table's boundaries are the ones the desk publishes
+ok 44 - the fee table's boundaries are the ones the desk publishes
+  ---
+  duration_ms: 0.175
+  type: 'test'
+  ...
+1..44
+# tests 44
+# suites 0
+# pass 44
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 349.5229

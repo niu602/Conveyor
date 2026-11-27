@@ -1,0 +1,245 @@
+TAP version 13
+# Subtest: network is valid, has no demo mode and keeps its grounding and partner rules
+ok 1 - network is valid, has no demo mode and keeps its grounding and partner rules
+  ---
+  duration_ms: 7.827
+  type: 'test'
+  ...
+# Subtest: the shared action is a read for the callers it lists, with the page's input
+ok 2 - the shared action is a read for the callers it lists, with the page's input
+  ---
+  duration_ms: 2.809
+  type: 'test'
+  ...
+# Subtest: the shared order is for the guesthouse and confirmed in this site's window
+ok 3 - the shared order is for the guesthouse and confirmed in this site's window
+  ---
+  duration_ms: 0.2125
+  type: 'test'
+  ...
+# Subtest: the shared order keeps the visitor's name and address in the window
+ok 4 - the shared order keeps the visitor's name and address in the window
+  ---
+  duration_ms: 1.6621
+  type: 'test'
+  ...
+# Subtest: the shared state read matches the page's, without the cart and the order
+ok 5 - the shared state read matches the page's, without the cart and the order
+  ---
+  duration_ms: 23.9913
+  type: 'test'
+  ...
+# Subtest: agentTools are local-only page actions or shared bridge actions, with no TODO left
+ok 6 - agentTools are local-only page actions or shared bridge actions, with no TODO left
+  ---
+  duration_ms: 3.7186
+  type: 'test'
+  ...
+# Subtest: the front agent is offered both partner networks
+ok 7 - the front agent is offered both partner networks
+  ---
+  duration_ms: 2.9727
+  type: 'test'
+  ...
+# Subtest: front agent reads page state through a website tool
+ok 8 - front agent reads page state through a website tool
+  ---
+  duration_ms: 5.8235
+  type: 'test'
+  ...
+# Each model call sends 6993 characters of system prompt and 7159 of tool definitions.
+# Subtest: the read action gives today, the menu, the page facts and the cart
+ok 9 - the read action gives today, the menu, the page facts and the cart
+  ---
+  duration_ms: 2.1156
+  type: 'test'
+  ...
+# Subtest: the add tool changes the cart and refuses an unknown ID
+ok 10 - the add tool changes the cart and refuses an unknown ID
+  ---
+  duration_ms: 15.0649
+  type: 'test'
+  ...
+# Subtest: the set tool sets exact quantities and refuses bad lines
+ok 11 - the set tool sets exact quantities and refuses bad lines
+  ---
+  duration_ms: 13.1326
+  type: 'test'
+  ...
+# Subtest: the cart operations refuse by returning and change nothing
+ok 12 - the cart operations refuse by returning and change nothing
+  ---
+  duration_ms: 3.3418
+  type: 'test'
+  ...
+# Subtest: line totals and the cart total match the menu prices
+ok 13 - line totals and the cart total match the menu prices
+  ---
+  duration_ms: 7.8873
+  type: 'test'
+  ...
+# Subtest: the page's own buttons use the same operations and keep focus in the cart
+ok 14 - the page's own buttons use the same operations and keep focus in the cart
+  ---
+  duration_ms: 4.5622
+  type: 'test'
+  ...
+# Subtest: irreversible action needs confirmation and a decline changes nothing
+ok 15 - irreversible action needs confirmation and a decline changes nothing
+  ---
+  duration_ms: 4.4671
+  type: 'test'
+  ...
+# Subtest: each irreversible action has its own dialog words
+ok 16 - each irreversible action has its own dialog words
+  ---
+  duration_ms: 0.4154
+  type: 'test'
+  ...
+# Subtest: the page has no template text left
+ok 17 - the page has no template text left
+  ---
+  duration_ms: 0.114
+  type: 'test'
+  ...
+# Subtest: the dialog shows the real call and changes nothing
+ok 18 - the dialog shows the real call and changes nothing
+  ---
+  duration_ms: 3.7907
+  type: 'test'
+  ...
+# Subtest: only the dialog's confirm button confirms
+ok 19 - only the dialog's confirm button confirms
+  ---
+  duration_ms: 2.9472
+  type: 'test'
+  ...
+# Subtest: a call the site would refuse opens no dialog
+ok 20 - a call the site would refuse opens no dialog
+  ---
+  duration_ms: 14.2438
+  type: 'test'
+  ...
+# Subtest: an order from an empty cart opens no dialog
+ok 21 - an order from an empty cart opens no dialog
+  ---
+  duration_ms: 3.7132
+  type: 'test'
+  ...
+# Subtest: the order takes only pickup or delivery
+ok 22 - the order takes only pickup or delivery
+  ---
+  duration_ms: 3.6942
+  type: 'test'
+  ...
+# Subtest: the page's own form shows the site's messages
+ok 23 - the page's own form shows the site's messages
+  ---
+  duration_ms: 2.7804
+  type: 'test'
+  ...
+# Subtest: a partner's action with the same name gets the runtime's dialog
+ok 24 - a partner's action with the same name gets the runtime's dialog
+  ---
+  duration_ms: 3.2459
+  type: 'test'
+  ...
+# Subtest: a chat form that bundles the irreversible action runs nothing
+ok 25 - a chat form that bundles the irreversible action runs nothing
+  ---
+  duration_ms: 2.8176
+  type: 'test'
+  ...
+# Subtest: other chat forms with several actions get the runtime's dialog
+ok 26 - other chat forms with several actions get the runtime's dialog
+  ---
+  duration_ms: 0.1381
+  type: 'test'
+  ...
+# Subtest: the consent card gets focus, and focus then returns to the chat
+ok 27 - the consent card gets focus, and focus then returns to the chat
+  ---
+  duration_ms: 0.2184
+  type: 'test'
+  ...
+# Subtest: a visitor typing in the page's form keeps focus when a consent card appears
+ok 28 - a visitor typing in the page's form keeps focus when a consent card appears
+  ---
+  duration_ms: 0.1825
+  type: 'test'
+  ...
+# Subtest: an add and an order work in one visitor message
+ok 29 - an add and an order work in one visitor message
+  ---
+  duration_ms: 4.9964
+  type: 'test'
+  ...
+# Subtest: each text field at its limit is accepted
+ok 30 - each text field at its limit is accepted
+  ---
+  duration_ms: 11.4947
+  type: 'test'
+  ...
+# Subtest: an approved order stores the same record as the page's own form
+ok 31 - an approved order stores the same record as the page's own form
+  ---
+  duration_ms: 6.219
+  type: 'test'
+  ...
+# Subtest: the mandate binds the order, its item count and the agreed fee
+ok 32 - the mandate binds the order, its item count and the agreed fee
+  ---
+  duration_ms: 5.6546
+  type: 'test'
+  ...
+# Subtest: the page keeps the courier request inside the consent card's 140 characters
+ok 33 - the page keeps the courier request inside the consent card's 140 characters
+  ---
+  duration_ms: 6.7002
+  type: 'test'
+  ...
+# Subtest: each hand-off condition refuses on its own and changes nothing
+ok 34 - each hand-off condition refuses on its own and changes nothing
+  ---
+  duration_ms: 19.858
+  type: 'test'
+  ...
+# Subtest: a mandate needs a placed delivery order
+ok 35 - a mandate needs a placed delivery order
+  ---
+  duration_ms: 6.7358
+  type: 'test'
+  ...
+# Subtest: the authorization dialog shows the fee and the parcels
+ok 36 - the authorization dialog shows the fee and the parcels
+  ---
+  duration_ms: 5.8544
+  type: 'test'
+  ...
+# Subtest: the mandate needs confirmation and a decline stores nothing
+ok 37 - the mandate needs confirmation and a decline stores nothing
+  ---
+  duration_ms: 5.8536
+  type: 'test'
+  ...
+# Subtest: a new order voids the mandate, which carries no visitor details
+ok 38 - a new order voids the mandate, which carries no visitor details
+  ---
+  duration_ms: 7.3565
+  type: 'test'
+  ...
+# Subtest: an approved mandate matches the page's own operation
+ok 39 - an approved mandate matches the page's own operation
+  ---
+  duration_ms: 5.586
+  type: 'test'
+  ...
+1..39
+# tests 39
+# suites 0
+# pass 39
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 572.1563

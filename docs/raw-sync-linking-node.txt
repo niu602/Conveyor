@@ -1,0 +1,409 @@
+TAP version 13
+# Subtest: L1 fixture caller -> guesthouse: one card, then the partner's files and bridge, on the caller's model
+ok 1 - L1 fixture caller -> guesthouse: one card, then the partner's files and bridge, on the caller's model
+  ---
+  duration_ms: 337.9174
+  type: 'test'
+  ...
+# Subtest: L2 fixture caller -> guesthouse: the visitor's model is used by both sites
+ok 2 - L2 fixture caller -> guesthouse: the visitor's model is used by both sites
+  ---
+  duration_ms: 12.6681
+  type: 'test'
+  ...
+# Subtest: L3 fixture caller -> guesthouse: a decline contacts no one
+ok 3 - L3 fixture caller -> guesthouse: a decline contacts no one
+  ---
+  duration_ms: 9.1686
+  type: 'test'
+  ...
+# Subtest: L5 fixture caller -> guesthouse: the partner is not offered a call back
+ok 4 - L5 fixture caller -> guesthouse: the partner is not offered a call back
+  ---
+  duration_ms: 9.3963
+  type: 'test'
+  ...
+# The partner's network does not call http://localhost:8082/marrow_point_visitor_desk, so the test adds that call.
+# Subtest: L6 fixture caller -> guesthouse: a second call is skipped and the partner runs once
+ok 5 - L6 fixture caller -> guesthouse: a second call is skipped and the partner runs once
+  ---
+  duration_ms: 9.7411
+  type: 'test'
+  ...
+# Consent cards shown: 2
+# Subtest: L7 fixture caller -> guesthouse: a partner missing from allowed_peers is refused
+ok 6 - L7 fixture caller -> guesthouse: a partner missing from allowed_peers is refused
+  ---
+  duration_ms: 4.585
+  type: 'test'
+  ...
+# Consent cards shown: 1
+# Subtest: L9 fixture caller -> guesthouse: a partner that fails validation never runs
+ok 7 - L9 fixture caller -> guesthouse: a partner that fails validation never runs
+  ---
+  duration_ms: 6.4264
+  type: 'test'
+  ...
+# Subtest: L11 fixture caller -> guesthouse: the partner reads what its site shares, in a frame on its own origin
+ok 8 - L11 fixture caller -> guesthouse: the partner reads what its site shares, in a frame on its own origin # SKIP The partner's site does not share website_search_rooms with http://localhost:8082, so its agents never get it (L1 and L4 check that).
+  ---
+  duration_ms: 3.3787
+  type: 'test'
+  ...
+# Subtest: L4 guesthouse -> tour site: one card, then the partner's files and bridge, on the caller's model
+ok 9 - L4 guesthouse -> tour site: one card, then the partner's files and bridge, on the caller's model
+  ---
+  duration_ms: 328.1378
+  type: 'test'
+  ...
+# Both sites name alibaba/qwen3.8-flash, so the partner's network is served naming gpt-4o-mini, to show which site chose the partner's model.
+# Subtest: L2 guesthouse -> tour site: the visitor's model is used by both sites
+ok 10 - L2 guesthouse -> tour site: the visitor's model is used by both sites
+  ---
+  duration_ms: 9.9154
+  type: 'test'
+  ...
+# Subtest: L3 guesthouse -> tour site: a decline contacts no one
+ok 11 - L3 guesthouse -> tour site: a decline contacts no one
+  ---
+  duration_ms: 7.1856
+  type: 'test'
+  ...
+# Subtest: L5 guesthouse -> tour site: the partner is not offered a call back
+ok 12 - L5 guesthouse -> tour site: the partner is not offered a call back
+  ---
+  duration_ms: 6.0973
+  type: 'test'
+  ...
+# Subtest: L6 guesthouse -> tour site: a second call is skipped and the partner runs once
+ok 13 - L6 guesthouse -> tour site: a second call is skipped and the partner runs once
+  ---
+  duration_ms: 6.7049
+  type: 'test'
+  ...
+# Consent cards shown: 2
+# Subtest: L7 guesthouse -> tour site: a partner missing from allowed_peers is refused
+ok 14 - L7 guesthouse -> tour site: a partner missing from allowed_peers is refused
+  ---
+  duration_ms: 9.9599
+  type: 'test'
+  ...
+# Consent cards shown: 1
+# Subtest: L9 guesthouse -> tour site: a partner that fails validation never runs
+ok 15 - L9 guesthouse -> tour site: a partner that fails validation never runs
+  ---
+  duration_ms: 4.76
+  type: 'test'
+  ...
+# Subtest: L11 guesthouse -> tour site: the partner reads what its site shares, in a frame on its own origin
+ok 16 - L11 guesthouse -> tour site: the partner reads what its site shares, in a frame on its own origin
+  ---
+  duration_ms: 14.7751
+  type: 'test'
+  ...
+# Subtest: L4 tour site -> guesthouse: one card, then the partner's files and bridge, on the caller's model
+ok 17 - L4 tour site -> guesthouse: one card, then the partner's files and bridge, on the caller's model
+  ---
+  duration_ms: 9.1293
+  type: 'test'
+  ...
+# Both sites name alibaba/qwen3.8-flash, so the partner's network is served naming gpt-4o-mini, to show which site chose the partner's model.
+# Subtest: L2 tour site -> guesthouse: the visitor's model is used by both sites
+ok 18 - L2 tour site -> guesthouse: the visitor's model is used by both sites
+  ---
+  duration_ms: 6.9359
+  type: 'test'
+  ...
+# Subtest: L3 tour site -> guesthouse: a decline contacts no one
+ok 19 - L3 tour site -> guesthouse: a decline contacts no one
+  ---
+  duration_ms: 4.92
+  type: 'test'
+  ...
+# Subtest: L5 tour site -> guesthouse: the partner is not offered a call back
+ok 20 - L5 tour site -> guesthouse: the partner is not offered a call back
+  ---
+  duration_ms: 8.6568
+  type: 'test'
+  ...
+# Subtest: L6 tour site -> guesthouse: a second call is skipped and the partner runs once
+ok 21 - L6 tour site -> guesthouse: a second call is skipped and the partner runs once
+  ---
+  duration_ms: 5.9393
+  type: 'test'
+  ...
+# Consent cards shown: 2
+# Subtest: L7 tour site -> guesthouse: a partner missing from allowed_peers is refused
+ok 22 - L7 tour site -> guesthouse: a partner missing from allowed_peers is refused
+  ---
+  duration_ms: 4.654
+  type: 'test'
+  ...
+# Consent cards shown: 1
+# Subtest: L9 tour site -> guesthouse: a partner that fails validation never runs
+ok 23 - L9 tour site -> guesthouse: a partner that fails validation never runs
+  ---
+  duration_ms: 6.0081
+  type: 'test'
+  ...
+# Subtest: L11 tour site -> guesthouse: the partner reads what its site shares, in a frame on its own origin
+ok 24 - L11 tour site -> guesthouse: the partner reads what its site shares, in a frame on its own origin
+  ---
+  duration_ms: 8.0406
+  type: 'test'
+  ...
+# Subtest: L4 guesthouse -> pizza site: one card, then the partner's files and bridge, on the caller's model
+ok 25 - L4 guesthouse -> pizza site: one card, then the partner's files and bridge, on the caller's model
+  ---
+  duration_ms: 99.3804
+  type: 'test'
+  ...
+# Both sites name alibaba/qwen3.8-flash, so the partner's network is served naming gpt-4o-mini, to show which site chose the partner's model.
+# Subtest: L2 guesthouse -> pizza site: the visitor's model is used by both sites
+ok 26 - L2 guesthouse -> pizza site: the visitor's model is used by both sites
+  ---
+  duration_ms: 7.3853
+  type: 'test'
+  ...
+# Subtest: L3 guesthouse -> pizza site: a decline contacts no one
+ok 27 - L3 guesthouse -> pizza site: a decline contacts no one
+  ---
+  duration_ms: 3.4971
+  type: 'test'
+  ...
+# Subtest: L5 guesthouse -> pizza site: the partner is not offered a call back
+ok 28 - L5 guesthouse -> pizza site: the partner is not offered a call back
+  ---
+  duration_ms: 7.0452
+  type: 'test'
+  ...
+# Subtest: L6 guesthouse -> pizza site: a second call is skipped and the partner runs once
+ok 29 - L6 guesthouse -> pizza site: a second call is skipped and the partner runs once
+  ---
+  duration_ms: 6.767
+  type: 'test'
+  ...
+# Consent cards shown: 2
+# Subtest: L7 guesthouse -> pizza site: a partner missing from allowed_peers is refused
+ok 30 - L7 guesthouse -> pizza site: a partner missing from allowed_peers is refused
+  ---
+  duration_ms: 3.6042
+  type: 'test'
+  ...
+# Consent cards shown: 1
+# Subtest: L9 guesthouse -> pizza site: a partner that fails validation never runs
+ok 31 - L9 guesthouse -> pizza site: a partner that fails validation never runs
+  ---
+  duration_ms: 4.5419
+  type: 'test'
+  ...
+# Subtest: L11 guesthouse -> pizza site: the partner reads what its site shares, in a frame on its own origin
+ok 32 - L11 guesthouse -> pizza site: the partner reads what its site shares, in a frame on its own origin # SKIP The partner's only read also reads its page's HTML, which needs a browser. The Chrome check runs it.
+  ---
+  duration_ms: 5.0828
+  type: 'test'
+  ...
+# Subtest: L4 pizza site -> guesthouse: one card, then the partner's files and bridge, on the caller's model
+ok 33 - L4 pizza site -> guesthouse: one card, then the partner's files and bridge, on the caller's model
+  ---
+  duration_ms: 6.3727
+  type: 'test'
+  ...
+# Both sites name alibaba/qwen3.8-flash, so the partner's network is served naming gpt-4o-mini, to show which site chose the partner's model.
+# Subtest: L2 pizza site -> guesthouse: the visitor's model is used by both sites
+ok 34 - L2 pizza site -> guesthouse: the visitor's model is used by both sites
+  ---
+  duration_ms: 6.5389
+  type: 'test'
+  ...
+# Subtest: L3 pizza site -> guesthouse: a decline contacts no one
+ok 35 - L3 pizza site -> guesthouse: a decline contacts no one
+  ---
+  duration_ms: 3.5617
+  type: 'test'
+  ...
+# Subtest: L5 pizza site -> guesthouse: the partner is not offered a call back
+ok 36 - L5 pizza site -> guesthouse: the partner is not offered a call back
+  ---
+  duration_ms: 6.983
+  type: 'test'
+  ...
+# Subtest: L6 pizza site -> guesthouse: a second call is skipped and the partner runs once
+ok 37 - L6 pizza site -> guesthouse: a second call is skipped and the partner runs once
+  ---
+  duration_ms: 8.9276
+  type: 'test'
+  ...
+# Consent cards shown: 2
+# Subtest: L7 pizza site -> guesthouse: a partner missing from allowed_peers is refused
+ok 38 - L7 pizza site -> guesthouse: a partner missing from allowed_peers is refused
+  ---
+  duration_ms: 6.7791
+  type: 'test'
+  ...
+# Consent cards shown: 1
+# Subtest: L9 pizza site -> guesthouse: a partner that fails validation never runs
+ok 39 - L9 pizza site -> guesthouse: a partner that fails validation never runs
+  ---
+  duration_ms: 7.7215
+  type: 'test'
+  ...
+# Subtest: L11 pizza site -> guesthouse: the partner reads what its site shares, in a frame on its own origin
+ok 40 - L11 pizza site -> guesthouse: the partner reads what its site shares, in a frame on its own origin
+  ---
+  duration_ms: 11.2521
+  type: 'test'
+  ...
+# Subtest: L4 tour site -> pizza site: one card, then the partner's files and bridge, on the caller's model
+ok 41 - L4 tour site -> pizza site: one card, then the partner's files and bridge, on the caller's model
+  ---
+  duration_ms: 9.2987
+  type: 'test'
+  ...
+# Both sites name alibaba/qwen3.8-flash, so the partner's network is served naming gpt-4o-mini, to show which site chose the partner's model.
+# Subtest: L2 tour site -> pizza site: the visitor's model is used by both sites
+ok 42 - L2 tour site -> pizza site: the visitor's model is used by both sites
+  ---
+  duration_ms: 8.6476
+  type: 'test'
+  ...
+# Subtest: L3 tour site -> pizza site: a decline contacts no one
+ok 43 - L3 tour site -> pizza site: a decline contacts no one
+  ---
+  duration_ms: 3.5525
+  type: 'test'
+  ...
+# Subtest: L5 tour site -> pizza site: the partner is not offered a call back
+ok 44 - L5 tour site -> pizza site: the partner is not offered a call back
+  ---
+  duration_ms: 5.3811
+  type: 'test'
+  ...
+# Subtest: L6 tour site -> pizza site: a second call is skipped and the partner runs once
+ok 45 - L6 tour site -> pizza site: a second call is skipped and the partner runs once
+  ---
+  duration_ms: 8.2953
+  type: 'test'
+  ...
+# Consent cards shown: 2
+# Subtest: L7 tour site -> pizza site: a partner missing from allowed_peers is refused
+ok 46 - L7 tour site -> pizza site: a partner missing from allowed_peers is refused
+  ---
+  duration_ms: 3.9341
+  type: 'test'
+  ...
+# Consent cards shown: 1
+# Subtest: L9 tour site -> pizza site: a partner that fails validation never runs
+ok 47 - L9 tour site -> pizza site: a partner that fails validation never runs
+  ---
+  duration_ms: 4.5724
+  type: 'test'
+  ...
+# Subtest: L11 tour site -> pizza site: the partner reads what its site shares, in a frame on its own origin
+ok 48 - L11 tour site -> pizza site: the partner reads what its site shares, in a frame on its own origin # SKIP The partner's only read also reads its page's HTML, which needs a browser. The Chrome check runs it.
+  ---
+  duration_ms: 6.4708
+  type: 'test'
+  ...
+# Subtest: L4 pizza site -> tour site: one card, then the partner's files and bridge, on the caller's model
+ok 49 - L4 pizza site -> tour site: one card, then the partner's files and bridge, on the caller's model
+  ---
+  duration_ms: 7.7445
+  type: 'test'
+  ...
+# Both sites name alibaba/qwen3.8-flash, so the partner's network is served naming gpt-4o-mini, to show which site chose the partner's model.
+# Subtest: L2 pizza site -> tour site: the visitor's model is used by both sites
+ok 50 - L2 pizza site -> tour site: the visitor's model is used by both sites
+  ---
+  duration_ms: 8.2097
+  type: 'test'
+  ...
+# Subtest: L3 pizza site -> tour site: a decline contacts no one
+ok 51 - L3 pizza site -> tour site: a decline contacts no one
+  ---
+  duration_ms: 3.9691
+  type: 'test'
+  ...
+# Subtest: L5 pizza site -> tour site: the partner is not offered a call back
+ok 52 - L5 pizza site -> tour site: the partner is not offered a call back
+  ---
+  duration_ms: 6.6968
+  type: 'test'
+  ...
+# Subtest: L6 pizza site -> tour site: a second call is skipped and the partner runs once
+ok 53 - L6 pizza site -> tour site: a second call is skipped and the partner runs once
+  ---
+  duration_ms: 6.8902
+  type: 'test'
+  ...
+# Consent cards shown: 2
+# Subtest: L7 pizza site -> tour site: a partner missing from allowed_peers is refused
+ok 54 - L7 pizza site -> tour site: a partner missing from allowed_peers is refused
+  ---
+  duration_ms: 7.5413
+  type: 'test'
+  ...
+# Consent cards shown: 1
+# Subtest: L9 pizza site -> tour site: a partner that fails validation never runs
+ok 55 - L9 pizza site -> tour site: a partner that fails validation never runs
+  ---
+  duration_ms: 9.7858
+  type: 'test'
+  ...
+# Subtest: L11 pizza site -> tour site: the partner reads what its site shares, in a frame on its own origin
+ok 56 - L11 pizza site -> tour site: the partner reads what its site shares, in a frame on its own origin
+  ---
+  duration_ms: 11.0235
+  type: 'test'
+  ...
+# Subtest: L10 fixture caller -> tour site -> guesthouse: each hop asks first, all on the caller's model
+ok 57 - L10 fixture caller -> tour site -> guesthouse: each hop asks first, all on the caller's model
+  ---
+  duration_ms: 9.7786
+  type: 'test'
+  ...
+# Subtest: L10 fixture caller -> tour site -> guesthouse: the tour site's own allowed_peers refuses the second hop
+ok 58 - L10 fixture caller -> tour site -> guesthouse: the tour site's own allowed_peers refuses the second hop
+  ---
+  duration_ms: 7.009
+  type: 'test'
+  ...
+# Subtest: L8 the guesthouse keeps the skill's runtime and rules, and builds clean
+ok 59 - L8 the guesthouse keeps the skill's runtime and rules, and builds clean
+  ---
+  duration_ms: 5062.7481
+  type: 'test'
+  ...
+# Subtest: L8 the tour site keeps the skill's runtime and rules, and builds clean
+ok 60 - L8 the tour site keeps the skill's runtime and rules, and builds clean
+  ---
+  duration_ms: 5173.4831
+  type: 'test'
+  ...
+# Subtest: L8 the pizza site keeps the skill's runtime and rules, and builds clean
+ok 61 - L8 the pizza site keeps the skill's runtime and rules, and builds clean
+  ---
+  duration_ms: 5715.9063
+  type: 'test'
+  ...
+# Subtest: L8 the caller test site keeps the template's rules and builds clean
+ok 62 - L8 the caller test site keeps the template's rules and builds clean
+  ---
+  duration_ms: 170.8423
+  type: 'test'
+  ...
+# Subtest: L8 the partner test site keeps the template's rules and builds clean
+ok 63 - L8 the partner test site keeps the template's rules and builds clean
+  ---
+  duration_ms: 237.4061
+  type: 'test'
+  ...
+1..63
+# tests 63
+# suites 0
+# pass 60
+# fail 0
+# cancelled 0
+# skipped 3
+# todo 0
+# duration_ms 17714.2435
