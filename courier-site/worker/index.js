@@ -92,7 +92,7 @@ export async function handle(request, store, now) {
       if (result.ok) {
         return send(result.replayed ? 200 : 201, result);
       }
-      const status = result.code === "quote_expired" ? 410 : result.code === "quote_changed" || result.code === "quote_mismatch" ? 409 : 422;
+      const status = result.code === "quote_expired" ? 410 : result.code === "quote_changed" || result.code === "quote_mismatch" || result.code === "idempotency_conflict" ? 409 : 422;
       return send(status, result);
     }
     if (request.method === "GET" && path === "/api/dispatch/outcome") {

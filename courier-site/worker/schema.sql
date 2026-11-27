@@ -1,8 +1,11 @@
 -- Conveyor Courier's desk, on Cloudflare D1.
 --
 -- The idempotency key is unique: a dispatch replayed with the same key finds the first
--- job instead of making a second one. Visitor details live here because the courier
--- needs them to deliver; they never appear in a bridge call, a receipt or a public file.
+-- job instead of making a second one. request_digest holds what that transaction was —
+-- quote, order reference, parcel and amount — so the same key sent with a different
+-- amount is refused rather than silently answered with the first job. Visitor details
+-- live here because the courier needs them to deliver; they never appear in a bridge
+-- call, a receipt or a public file.
 
 CREATE TABLE IF NOT EXISTS quotes (
   id TEXT PRIMARY KEY,
@@ -20,6 +23,7 @@ CREATE TABLE IF NOT EXISTS jobs (
   id TEXT PRIMARY KEY,
   quote_id TEXT NOT NULL,
   idempotency_key TEXT NOT NULL UNIQUE,
+  request_digest TEXT NOT NULL DEFAULT '',
   pizza_order_ref TEXT NOT NULL DEFAULT '',
   item_summary TEXT NOT NULL DEFAULT '',
   drop_zone TEXT NOT NULL,

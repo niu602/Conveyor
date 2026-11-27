@@ -807,7 +807,9 @@ class CourierSiteTest {
     assert.equal(write.effect, "irreversible");
     assert.equal(write.confirmsInWindow, true);
     assert.ok(write.description.includes("never ask for those"));
-    assert.ok(write.description.includes("Never call it twice for one quote"));
+    assert.ok(write.description.includes("Never call it twice for one order and quote"));
+    assert.ok(write.description.includes("45 seconds"), "The description must say how long the window keeps checking.");
+    assert.ok(write.description.includes("idempotency_conflict"));
     const fields = Object.keys(write.inputSchema.properties);
     assert.deepEqual(fields.sort(), ["dropZone", "expectedFeeCents", "itemCount", "itemSummary", "parcelSize", "pizzaOrderRef", "quoteId"].sort());
     for (const personal of ["customerName", "phone", "address", "email", "note"]) {

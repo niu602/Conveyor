@@ -52,7 +52,7 @@ export class DispatchWindow {
   static definition() {
     return {
       name: "confirm_dispatch",
-      description: "Accept a parcel run for the visitor, in one call. Call website_request_quote first in this turn and pass its quoteId and feeCents, with the same zone, parcel size and item count. A window opens on the courier's own site, where the visitor checks the fee and types their name, phone and address, so never ask for those and never send them. It returns only once the visitor has confirmed or cancelled there: with ok true the run is on the desk. Returns the job number, status, fee and trip minutes, or ok false with the desk's reason, such as an expired quote, a changed fee or the visitor cancelling. Never call it twice for one quote: if the outcome is unknown, read the job with website_lookup_job. When the desk's answer is lost the window reads the outcome back by the same idempotency key and returns settledBy \"read\": ok true means the run was already on the desk, ok false without unknown means nothing was recorded, and unknown true means it still could not be settled.",
+      description: "Accept a parcel run for the visitor, in one call. Call website_request_quote first in this turn and pass its quoteId and feeCents, with the same zone, parcel size and item count. A window opens on the courier's own site, where the visitor checks the fee and types their name, phone and address, so never ask for those and never send them. It returns only once the visitor has confirmed or cancelled there: with ok true the run is on the desk. Returns the job number, status, fee and trip minutes, or ok false with the desk's reason, such as an expired quote, a changed fee or the visitor cancelling. Never call it twice for one order and quote: if the outcome is unknown, read the job with website_lookup_job. When the desk's answer is lost the window keeps checking by the same idempotency key for up to 45 seconds and returns settledBy \"read\": ok true means the run was already on the desk, ok false without unknown means the desk confirmed nothing was recorded, and unknown true means it still could not be settled. The same key sent with a different amount is refused with code idempotency_conflict.",
       effect: "irreversible",
       availability: "bridge",
       callerOrigins: DispatchWindow.CALLERS,
@@ -107,17 +107,41 @@ export class DispatchWindow {
   }
 
   /**
-   * The key that makes one quote land as one job.
+   * The key that makes one order's run on one quote land as one job.
    *
-   * A second window on the same quote, or a retry after an unknown outcome, sends the same
-   * key, so the desk returns the first job instead of accepting a second run.
+   * Derived only from what both sites already know — the partner's own order number and
+   * the quote id — so the calling site can work the key out again without having stored
+   * it, and a retry after a lost answer names the same transaction. The amount is not in
+   * the key: the desk holds what the transaction was and compares it on a replay.
+   *
+   * With no order number the quote alone names the run, which is the case for a parcel
+   * that did not come from the pizza partner.
    *
    * :param quoteId: The quote's id.
+   * :param pizzaOrderRef: The calling site's own order number, when it has one.
    * :return: The idempotency key.
    */
-  static keyFor(quoteId) {
-    return `dispatch:${quoteId}`;
+  static keyFor(quoteId, pizzaOrderRef) {
+    const ref = String(pizzaOrderRef || "").trim();
+    return ref ? `dispatch:${ref}:${quoteId}` : `dispatch:${quoteId}`;
   }
+
+  /**
+   * How long to wait before each read while an outcome is being confirmed, in order.
+   *
+   * With the first read made at once, these land at 5s, 15s, 30s and 45s: five reads over
+   * 45 seconds, then the window stops and says it could not settle. The budget is kept
+   * well under the runtime's 90-second limit for the whole partner call.
+   */
+  static POLL_DELAYS = [5000, 10000, 15000, 15000];
+
+  /**
+   * How many reads in a row must say "nothing recorded" before the window believes it.
+   *
+   * One read made straight after a lost answer can still race a write that is landing.
+   * Two in a row, seconds apart, is what the window tells the visitor it checked.
+   */
+  static ABSENT_READS = 2;
 
   /**
    * Check the request with the desk's own rules, then ask the visitor in this window.
@@ -321,18 +345,24 @@ export class DispatchWindow {
     state.done = true;
     DispatchWindow.showErrors(state, {});
     state.confirmButton.disabled = true;
-    const key = DispatchWindow.keyFor(state.quote.quoteId);
+    const key = DispatchWindow.keyFor(state.quote.quoteId, state.request.pizzaOrderRef);
+    state.key = key;
     let done;
     try {
       done = await state.desk.dispatch({ ...state.request, idempotencyKey: key }, details);
     } catch {
       // The call may or may not have landed. Never send it again: read the outcome by the
       // same idempotency key, which names at most one job, and settle on what that says.
-      const settled = await DispatchWindow.settle(state.desk, key);
-      DispatchWindow.finishUnknown(state, box, details, settled);
+      await DispatchWindow.confirm(state, box, details, key);
       return;
     }
     if (!done.ok) {
+      if (done.code === "idempotency_conflict") {
+        // The reference already names a different run. Sending again would ask the same
+        // wrong question, so this ends here and says which job the reference belongs to.
+        DispatchWindow.finishConflict(state, box, done);
+        return;
+      }
       // A problem with one of the visitor's own fields goes under that field; anything
       // about the quote or the run goes at the top of the form.
       const own = DispatchWindow.FIELDS.some((field) => field.name === done.field);
@@ -341,6 +371,65 @@ export class DispatchWindow {
     }
     box.replaceChildren(DispatchWindow.confirmation(state, done, details));
     state.resolve(DispatchWindow.result(done));
+  }
+
+  /**
+   * Settle a lost answer while the visitor watches, then show what was settled.
+   *
+   * The window says it is confirming, reads the desk by the same key on a widening
+   * schedule, and only then decides. The submit button stays out of reach the whole time:
+   * a second send is not offered while the outcome is still open.
+   *
+   * :param state: The window's state, with the desk and the resolver.
+   * :param box: The window's content.
+   * :param details: What the visitor typed.
+   * :param key: The idempotency key the dispatch was sent with.
+   * :return: A promise of nothing.
+   */
+  static async confirm(state, box, details, key) {
+    const notice = DispatchWindow.element("section", "", "panel");
+    const heading = DispatchWindow.element("h2", "Confirming with the desk");
+    const line = DispatchWindow.element("p", "Your answer was lost on the way back. We are checking whether the run was recorded, using the same reference. Nothing is being sent again.");
+    const progress = DispatchWindow.element("p", "", "demo-note");
+    notice.append(heading, line, progress);
+    box.replaceChildren(notice);
+    const wait = state.wait || ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
+    const settled = await DispatchWindow.confirmOutcome(state.desk, key, wait, (attempt, total) => {
+      progress.textContent = `Check ${attempt} of ${total}. Please keep this window open.`;
+    });
+    DispatchWindow.finishUnknown(state, box, details, settled);
+  }
+
+  /**
+   * Read the desk until the outcome is settled or the checking budget runs out.
+   *
+   * Three endings, and they are kept apart: the job is on the desk, the desk has said
+   * twice that nothing is recorded, or the budget ran out without a settled answer.
+   *
+   * :param desk: The desk client.
+   * :param key: The idempotency key.
+   * :param wait: A function returning a promise that resolves after the given milliseconds.
+   * :param onTick: Called after each unsettled read, with the attempt number and the total.
+   * :return: A promise of {outcome: "recorded"|"absent"|"unknown", job?}.
+   */
+  static async confirmOutcome(desk, key, wait, onTick) {
+    const total = DispatchWindow.POLL_DELAYS.length + 1;
+    let absent = 0;
+    for (let attempt = 1; attempt <= total; attempt += 1) {
+      if (attempt > 1) {
+        await wait(DispatchWindow.POLL_DELAYS[attempt - 2]);
+      }
+      const settled = await DispatchWindow.settle(desk, key);
+      if (settled.outcome === "recorded") {
+        return settled;
+      }
+      absent = settled.outcome === "absent" ? absent + 1 : 0;
+      if (absent >= DispatchWindow.ABSENT_READS) {
+        return settled;
+      }
+      onTick?.(attempt, total);
+    }
+    return { outcome: "unknown" };
   }
 
   /**
@@ -377,15 +466,17 @@ export class DispatchWindow {
   }
 
   /**
-   * Show and return what the read settled, without ever sending the dispatch again.
+   * Show and return what the reads settled, without ever sending the dispatch again.
    *
-   * The form stays closed in all three cases. The window is finished either way, and a
-   * second send is not the visitor's decision to make here.
+   * A recorded job is shown as the receipt. A confirmed absence is the one case where the
+   * visitor may send again, on the same reference and only while the quote still holds.
+   * An outcome the reads could not settle closes the window and points at the desk page:
+   * the submit button is never offered while the outcome is still open.
    *
    * :param state: The window's state, with the caller's host and the resolver.
    * :param box: The window's content, replaced with the outcome.
    * :param details: What the visitor typed, shown only here.
-   * :param settled: What settle() read back.
+   * :param settled: What the reads settled.
    */
   static finishUnknown(state, box, details, settled) {
     if (settled.outcome === "recorded") {
@@ -402,28 +493,82 @@ export class DispatchWindow {
     if (settled.outcome === "absent") {
       notice.append(
         DispatchWindow.element("h2", "Nothing was recorded"),
-        DispatchWindow.element("p", "The first send's answer was lost, so we checked the desk by the same reference: no job was recorded for it. Nothing was accepted and nothing was sent twice."),
-        DispatchWindow.element("p", `This window closes now. Ask the assistant on ${state.caller} for a fresh quote if you still want the run.`),
+        DispatchWindow.element("p", "The first send's answer was lost, so we checked the desk twice by the same reference: no job was recorded for it. Nothing was accepted and nothing was sent twice."),
       );
+      if (DispatchWindow.retryOpen(state)) {
+        // The absence is settled, so the visitor may decide to try again. The reference is
+        // unchanged: if the first send turns out to have landed, the desk returns that job
+        // instead of taking a second run.
+        notice.append(DispatchWindow.element("p", "The quote still holds, so you can send it again with the same reference. If the first send did reach the desk after all, you will get that same job back, not a second one."));
+        box.replaceChildren(notice, state.form);
+        DispatchWindow.reopen(state, {});
+        state.confirmButton.textContent = "Send this parcel again";
+        return;
+      }
+      notice.append(DispatchWindow.element("p", `The quote has run out, so this window closes now. Ask the assistant on ${state.caller} for a fresh quote if you still want the run.`));
       box.replaceChildren(notice);
       state.resolve({
         ok: false,
         settledBy: "read",
-        reason: "The dispatch's answer was lost, and reading the desk by the same idempotency key showed no job recorded. Nothing was accepted. Ask for a new quote before trying again.",
+        reason: "The dispatch's answer was lost, and reading the desk by the same idempotency key showed no job recorded. Nothing was accepted. The quote has expired, so ask for a new quote before trying again.",
       });
       return;
     }
     notice.append(
-      DispatchWindow.element("h2", "We could not check"),
-      DispatchWindow.element("p", "The first send's answer was lost and the desk could not be read either, so we do not know whether the job was accepted. Nothing was sent twice."),
-      DispatchWindow.element("p", `Do not send it again. Read the job on our desk page, or call us, and the assistant on ${state.caller} can read it with the job number once you have it.`),
+      DispatchWindow.element("h2", "We could not confirm it"),
+      DispatchWindow.element("p", "The first send's answer was lost, and checking the desk for 45 seconds did not settle whether the job was accepted. Nothing was sent twice, and this window will not offer another send while that is unknown."),
+      DispatchWindow.element("p", "Check it on our own jobs page, where every run on the desk is listed:"),
+      DispatchWindow.deskLink(),
+      DispatchWindow.element("p", `Once you have the job number, the assistant on ${state.caller} can read it with website_lookup_job. If it is not there, ask for a new quote rather than sending this one again.`),
     );
     box.replaceChildren(notice);
     state.resolve({
       ok: false,
       unknown: true,
-      reason: "The dispatch may or may not have been accepted, and the desk could not be read to settle it. Do not dispatch again: read the job with website_lookup_job, or call the desk.",
+      reason: "The dispatch may or may not have been accepted, and 45 seconds of reading the desk did not settle it. Do not dispatch again: read the job with website_lookup_job, or check the courier's own jobs page.",
     });
+  }
+
+  /**
+   * End a send whose reference already names a different run.
+   *
+   * :param state: The window's state, with the resolver.
+   * :param box: The window's content.
+   * :param refusal: The desk's conflict, with the job the reference belongs to.
+   */
+  static finishConflict(state, box, refusal) {
+    const notice = DispatchWindow.element("section", "", "panel");
+    notice.append(
+      DispatchWindow.element("h2", "That reference is already used"),
+      DispatchWindow.element("p", refusal.reason),
+      DispatchWindow.element("p", "Nothing new was accepted. This window closes now."),
+    );
+    box.replaceChildren(notice);
+    state.resolve({ ok: false, code: refusal.code, jobId: refusal.jobId, reason: refusal.reason });
+  }
+
+  /**
+   * Whether the quote still holds, which is how long a retry may be offered.
+   *
+   * :param state: The window's state, with the held quote.
+   * :return: True while the quote has not expired.
+   */
+  static retryOpen(state) {
+    const until = Date.parse(state.quote?.expiresAt || "");
+    return Number.isFinite(until) && Date.now() < until;
+  }
+
+  /**
+   * A link to this site's own jobs page, on whatever origin the site is served from.
+   *
+   * :return: The anchor element.
+   */
+  static deskLink() {
+    const link = DispatchWindow.element("a", "Conveyor Courier — jobs on the desk");
+    link.href = new URL("../index.html", import.meta.url).href;
+    link.target = "_blank";
+    link.rel = "noopener";
+    return link;
   }
 
   /**

@@ -75,16 +75,17 @@ export class D1Store {
   async putJob(job) {
     const result = await this.db
       .prepare(
-        `INSERT INTO jobs (id, quote_id, idempotency_key, pizza_order_ref, item_summary, drop_zone,
+        `INSERT INTO jobs (id, quote_id, idempotency_key, request_digest, pizza_order_ref, item_summary, drop_zone,
            parcel_size, item_count, customer_name, phone, address, note, fee_cents, eta_minutes,
            status, created_at, updated_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18)
          ON CONFLICT(idempotency_key) DO NOTHING`,
       )
       .bind(
         job.jobId,
         job.quoteId,
         job.idempotencyKey,
+        job.requestDigest || "",
         job.pizzaOrderRef,
         job.itemSummary,
         job.dropZone,
@@ -197,6 +198,7 @@ export class D1Store {
       jobId: row.id,
       quoteId: row.quote_id,
       idempotencyKey: row.idempotency_key,
+      requestDigest: row.request_digest || "",
       pizzaOrderRef: row.pizza_order_ref,
       itemSummary: row.item_summary,
       dropZone: row.drop_zone,

@@ -5,8 +5,9 @@
 // in the browser, in the Worker and in the tests.
 //
 // The one rule that must never bend: a dispatch carries an idempotency key. Replaying
-// the same key returns the first job, never a second one. A failed call whose outcome is
-// unknown is resolved by reading the job, never by writing again.
+// the same key with the same transaction returns the first job, never a second one; the
+// same key with a different amount or parcel is refused outright. A failed call whose
+// outcome is unknown is resolved by reading the job, never by writing again.
 import { CourierData } from "./courier-data.js";
 
 /**
@@ -122,9 +123,24 @@ export class CourierDesk {
     if (!key) {
       return { ok: false, reason: "A dispatch needs an idempotency key.", field: "idempotencyKey" };
     }
+    const digest = CourierDesk.requestDigest(args);
     // Read first: a replay of a key that already landed returns that job, unchanged.
     const existing = await this.store.getJobByKey(key);
     if (existing) {
+      // The key names one transaction, so the same key must carry the same transaction.
+      // A different amount or parcel under a key that already landed is an error, never a
+      // silent second run and never a silent swap of what was accepted.
+      const held = existing.requestDigest || CourierDesk.requestDigest(existing);
+      if (held !== digest) {
+        return {
+          ok: false,
+          code: "idempotency_conflict",
+          field: "idempotencyKey",
+          jobId: existing.jobId,
+          recordedFeeCents: existing.feeCents,
+          reason: `That reference already names job ${existing.jobId} for ${CourierData.money(existing.feeCents)}, ${existing.itemCount} item(s) to ${existing.dropZone}. A reference stands for one run: send the same amount and parcel, or ask for a new quote for a different one.`,
+        };
+      }
       return { ok: true, replayed: true, ...CourierDesk.receipt(existing) };
     }
     const check = await this.checkDispatch(args, details);
@@ -136,6 +152,7 @@ export class CourierDesk {
       jobId: `J-${this.ids()}`,
       quoteId: check.quote.quoteId,
       idempotencyKey: key,
+      requestDigest: digest,
       pizzaOrderRef: String(args.pizzaOrderRef || ""),
       itemSummary: String(args.itemSummary || ""),
       dropZone: args.dropZone,
@@ -250,6 +267,33 @@ export class CourierDesk {
     const updated = await this.store.updateJob(job.jobId, { status, updatedAt: at });
     await this.store.addEvent(job.jobId, status, at, "");
     return { ok: true, ...CourierDesk.receipt(updated) };
+  }
+
+  /**
+   * What makes a dispatch the transaction it is, for comparing a replay against the job
+   * already held under that key.
+   *
+   * The amount is in here, not in the key: the key names the transaction, and the digest
+   * says what that transaction was. The visitor's own details are deliberately left out —
+   * they are who receives the parcel, not what was bought, and a corrected phone number
+   * must not look like a different transaction.
+   *
+   * It reads the same off a request and off a stored job: a job carries feeCents where a
+   * request carries expectedFeeCents, and the desk only ever accepts them equal.
+   *
+   * :param args: The dispatch request, or the stored job.
+   * :return: The canonical digest string.
+   */
+  static requestDigest(args) {
+    const fee = args.expectedFeeCents ?? args.feeCents ?? "";
+    return [
+      String(args.quoteId || ""),
+      String(args.pizzaOrderRef || ""),
+      String(args.dropZone || ""),
+      String(args.parcelSize || ""),
+      String(args.itemCount ?? ""),
+      String(fee),
+    ].join("|");
   }
 
   /**

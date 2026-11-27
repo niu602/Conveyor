@@ -133,6 +133,71 @@ test("the same idempotency key lands one job, however often it is sent", async (
   assert.notEqual(other.body.jobId, first.body.jobId);
 });
 
+test("the same key with a different amount is refused, not answered with the first job", async () => {
+  const store = new MemoryStore();
+  const held = await quote(store, { dropZone: "north", parcelSize: "medium", itemCount: 3 });
+  const body = dispatchBody(held, "key-amount");
+  const first = await send(store, "POST", "/api/dispatch", body);
+  assert.equal(first.status, 201);
+
+  // The fee is not in the key, so this reaches the same row. It must be an explicit error:
+  // silently returning the first job would hide that the caller asked for another amount.
+  const conflict = await send(store, "POST", "/api/dispatch", { ...body, expectedFeeCents: held.feeCents + 200 });
+  assert.equal(conflict.status, 409);
+  assert.equal(conflict.body.ok, false);
+  assert.equal(conflict.body.code, "idempotency_conflict");
+  assert.equal(conflict.body.jobId, first.body.jobId);
+  assert.equal(conflict.body.recordedFeeCents, held.feeCents);
+  assert.match(conflict.body.reason, /\$7\.00/);
+
+  const jobs = await store.listJobs(50);
+  assert.equal(jobs.length, 1, "A conflicting replay made a second job.");
+  assert.equal(jobs[0].feeCents, held.feeCents, "A conflicting replay changed what was accepted.");
+  // The original transaction is still replayable, unchanged.
+  const again = await send(store, "POST", "/api/dispatch", body);
+  assert.equal(again.status, 200);
+  assert.equal(again.body.replayed, true);
+  assert.equal(again.body.jobId, first.body.jobId);
+});
+
+test("the same key with a different parcel is refused, and a different recipient is not", async () => {
+  const store = new MemoryStore();
+  const held = await quote(store, { dropZone: "north", parcelSize: "medium", itemCount: 3 });
+  const body = dispatchBody(held, "key-parcel");
+  const first = await send(store, "POST", "/api/dispatch", body);
+
+  for (const change of [{ itemCount: 4 }, { dropZone: "harbor" }, { parcelSize: "small" }, { pizzaOrderRef: "LO-88" }]) {
+    const answer = await send(store, "POST", "/api/dispatch", { ...body, ...change });
+    assert.equal(answer.status, 409, JSON.stringify(change));
+    assert.equal(answer.body.code, "idempotency_conflict");
+  }
+  // Who receives the parcel is not what was bought: a corrected name or address replays.
+  const corrected = await send(store, "POST", "/api/dispatch", { ...body, customerName: "Other Person", phone: "+1 555 0199", address: "9 Other Road", note: "" });
+  assert.equal(corrected.status, 200);
+  assert.equal(corrected.body.replayed, true);
+  assert.equal((await store.getJob(first.body.jobId)).customerName, "Sam Lee", "A replay overwrote the first recipient.");
+  assert.equal((await store.listJobs(50)).length, 1);
+});
+
+test("the job keeps the digest of the transaction it accepted", async () => {
+  const store = new MemoryStore();
+  const held = await quote(store, { dropZone: "harbor", parcelSize: "small", itemCount: 2 });
+  const body = dispatchBody(held, "key-digest");
+  const answer = await send(store, "POST", "/api/dispatch", body);
+  const stored = await store.getJob(answer.body.jobId);
+  assert.equal(stored.requestDigest, [held.quoteId, "LO-77", "harbor", "small", "2", String(held.feeCents)].join("|"));
+  // The digest is the desk's own bookkeeping: it is not in the receipt the chat gets.
+  assert.equal(Object.hasOwn(answer.body, "requestDigest"), false);
+  assert.equal(JSON.stringify(answer.body).includes("LO-77|"), false);
+
+  // A row written before the digest existed is still compared, from the fields it holds.
+  const legacy = { ...stored, requestDigest: "" };
+  store.jobs.set(legacy.jobId, legacy);
+  const conflict = await send(store, "POST", "/api/dispatch", { ...body, expectedFeeCents: 1 });
+  assert.equal(conflict.status, 409);
+  assert.equal(conflict.body.code, "idempotency_conflict");
+});
+
 test("an unknown dispatch is settled by reading its key, and the read records nothing", async () => {
   const store = new MemoryStore();
   const held = await quote(store, { dropZone: "north", parcelSize: "small", itemCount: 2 });
@@ -430,7 +495,7 @@ class D1Fake {
    * :return: The row.
    */
   static row(values) {
-    const columns = ["id", "quote_id", "idempotency_key", "pizza_order_ref", "item_summary",
+    const columns = ["id", "quote_id", "idempotency_key", "request_digest", "pizza_order_ref", "item_summary",
       "drop_zone", "parcel_size", "item_count", "customer_name", "phone", "address", "note",
       "fee_cents", "eta_minutes", "status", "created_at", "updated_at"];
     const row = {};
