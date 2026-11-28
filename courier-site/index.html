@@ -6,13 +6,15 @@
     <meta name="description" content="Conveyor Courier in Marrow Point: same-day parcel runs between local businesses, with quotes, a job desk, status lookup and an assistant.">
     <title>Conveyor Courier · Marrow Point</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="receipt-ledger.css">
     <script type="module" src="script.js"></script>
     <script type="module" src="site.js"></script>
+    <script type="module" src="receipt-page.js"></script>
   </head>
   <body>
     <header>
       <a class="brand" href="#">Conveyor <span>Courier</span></a>
-      <nav aria-label="Main navigation"><a href="#quote">Get a quote</a><a href="#jobs">Job desk</a><a href="#lookup">Track a job</a><a href="#assistant">Ask us</a></nav>
+      <nav aria-label="Main navigation"><a href="#quote">Get a quote</a><a href="#jobs">Job desk</a><a href="#lookup">Track a job</a><a href="#receipts">Receipts</a><a href="#assistant">Ask us</a></nav>
     </header>
     <main>
       <section class="intro" aria-labelledby="welcome">
@@ -86,6 +88,13 @@
         <p id="partner-note">Ordering food? Our neighbors at
           <a id="pizza-link" href="http://127.0.0.1:8084/">Little Oven Pizza</a>
           can hand a delivery straight to this desk from their own chat.</p>
+      </section>
+
+      <section id="receipts" class="visit" aria-labelledby="receipts-heading">
+        <h2 id="receipts-heading">Signed receipts</h2>
+        <p id="receipts-note">Every dispatch this desk records is signed over the job number, the parcel, the fee and the moment it was recorded. This page fetches the desk's public key and checks each signature here, in your browser. No assistant is involved, and the status of a run does not affect the signature.</p>
+        <div id="receipts-ledger"></div>
+        <button id="refresh-receipts" type="button">Check the receipts again</button>
       </section>
 
       <section id="assistant" class="assistant" aria-labelledby="assistant-heading">

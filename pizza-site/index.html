@@ -6,13 +6,15 @@
     <meta name="description" content="Little Oven Pizza in Marrow Point: pizzas for pickup or delivery, with the menu, opening hours, a demo checkout and an assistant.">
     <title>Little Oven Pizza · Marrow Point</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="receipt-ledger.css">
     <script type="module" src="script.js"></script>
     <script type="module" src="site.js"></script>
+    <script type="module" src="receipt-page.js"></script>
   </head>
   <body>
     <header>
       <a class="brand" href="#">Little Oven <span>Pizza</span></a>
-      <nav aria-label="Main navigation"><a href="#menu">Menu</a><a href="#cart">Your order</a><a href="#visit">Find us</a><a href="#assistant">Ask us</a></nav>
+      <nav aria-label="Main navigation"><a href="#menu">Menu</a><a href="#cart">Your order</a><a href="#visit">Find us</a><a href="#receipts">Delivery receipts</a><a href="#assistant">Ask us</a></nav>
     </header>
     <main>
       <section class="intro" aria-labelledby="welcome">
@@ -74,6 +76,12 @@
         <p id="courier-note">Want your pizzas run over by courier? Our neighbors at
           <a href="http://localhost:8085/">Conveyor Courier</a> (555-0170) collect from our kitchen and deliver across Marrow Point.
           Ask our assistant for a courier quote, and it will hand the delivery to their desk once you agree to the fee. You type your name, phone and address in their own window, never in this chat.</p>
+      </section>
+      <section id="receipts" class="visit" aria-labelledby="receipts-heading">
+        <h2 id="receipts-heading">Delivery receipts</h2>
+        <p id="receipts-note">When we hand a delivery to Conveyor Courier, their desk signs a receipt for the job number, the parcel and the fee. We check that signature here against the public key their desk publishes, so neither side has to take the other's word for what was agreed. No assistant is involved.</p>
+        <div id="receipts-ledger"></div>
+        <button id="refresh-receipts" type="button">Check the receipts again</button>
       </section>
       <section id="assistant" class="assistant" aria-labelledby="assistant-heading">
         <h2 id="assistant-heading">Ask Little Oven Pizza</h2>

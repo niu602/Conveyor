@@ -1,0 +1,24 @@
+/* The reconciliation ledger. Shared by both sites, byte for byte, so the two pages show
+   the same verdicts the same way. Colours here are semantic, not brand: green means the
+   signature matched, red means it did not, amber means the key is missing, grey means the
+   receipt was never signed. Each site's own palette stays in its own stylesheet. */
+
+.ledger-summary { font-weight: 600; }
+.ledger-keys, .ledger-privacy, .ledger-note { font-size: .8125rem; opacity: .8; }
+.ledger-error { color: #8a1c10; background: #fdecea; border: 1px solid #f2c4bd; border-radius: 8px; padding: 10px 12px; }
+
+.ledger-table { width: 100%; border-collapse: collapse; font-size: .875rem; margin: 12px 0; }
+.ledger-table th, .ledger-table td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid rgba(128, 128, 128, .3); }
+.ledger-table th { font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; opacity: .75; }
+.ledger-table td:first-child { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .75rem; word-break: break-all; }
+.ledger-table td:nth-child(5) { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .75rem; }
+
+.ledger-verdict { display: block; }
+.ledger-verified { color: #1c6b3a; }
+.ledger-changed { color: #8a1c10; }
+.ledger-no-key { color: #8a5a00; }
+.ledger-unsigned { color: #5a5a52; }
+.ledger-note { display: block; max-width: 26ch; }
+
+.ledger-tamper { margin-top: 6px; font-size: .75rem; padding: 4px 8px; }
+.ledger-tamper-result { display: block; margin-top: 6px; font-size: .75rem; color: #8a5a00; max-width: 26ch; }

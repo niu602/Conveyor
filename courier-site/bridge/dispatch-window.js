@@ -519,6 +519,8 @@ export class DispatchWindow {
       DispatchWindow.element("p", "The first send's answer was lost, and checking the desk for 45 seconds did not settle whether the job was accepted. Nothing was sent twice, and this window will not offer another send while that is unknown."),
       DispatchWindow.element("p", "Check it on our own jobs page, where every run on the desk is listed:"),
       DispatchWindow.deskLink(),
+      DispatchWindow.element("p", "If the job is there, its receipt is signed. Our receipts page checks that signature in your browser, so you can see the fee and parcel the desk actually recorded:"),
+      DispatchWindow.receiptsLink(),
       DispatchWindow.element("p", `Once you have the job number, the assistant on ${state.caller} can read it with website_lookup_job. If it is not there, ask for a new quote rather than sending this one again.`),
     );
     box.replaceChildren(notice);
@@ -566,6 +568,19 @@ export class DispatchWindow {
   static deskLink() {
     const link = DispatchWindow.element("a", "Conveyor Courier — jobs on the desk");
     link.href = new URL("../index.html", import.meta.url).href;
+    link.target = "_blank";
+    link.rel = "noopener";
+    return link;
+  }
+
+  /**
+   * A link to the desk's receipts page, where a recorded run can be verified.
+   *
+   * :return: The anchor element.
+   */
+  static receiptsLink() {
+    const link = DispatchWindow.element("a", "Conveyor Courier — verify a receipt");
+    link.href = `${new URL("../index.html", import.meta.url).href}#receipts`;
     link.target = "_blank";
     link.rel = "noopener";
     return link;
