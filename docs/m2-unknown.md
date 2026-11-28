@@ -16,9 +16,14 @@
 | `recorded` | 有 | 有（演练 A） | 有 | `m2-unknown-recorded.png` |
 | `absent` | 有 | **部分**（演练 B，见 §6.2） | 部分 | 无 |
 | `unknown` | 有（跑满 45s） | **未做** | 未做 | 无 |
-| 90 秒 composition 时限 | — | 有（partner 层真实触发，见 §6.4） | 有 | 无 |
+| 90 秒 composition 时限 | — | 有（partner 层真实触发，见 §6.4） | 有（套 A 与套 B 各一次） | `m2-unknown-deadline.png` |
 
-**未完成的原因是外部配额，不是设计或代码问题**：2026-11-28 02:5x 起该 key 对 `discovery-api.intern-ai.org.cn` 返回 `LLM HTTP 429 {"code":"quota_exceeded"}`，两次不同 `trace_id`（`fb962d6b…`、`984bde54…`）均如此，连"你的营业时间是几点"这种单跳问答也被拒。真模型链路在此之后无法继续，`absent` 面板截图与 `unknown` 两个注入演练因此挂起。代码侧三态由 55 项用例覆盖，全绿。
+**未完成的原因是外部服务，不是设计或代码问题**。两段：
+
+1. 2026-11-28 上午，intern-ai 的 key 对 `discovery-api.intern-ai.org.cn` 返回 `LLM HTTP 429 {"code":"quota_exceeded"}`，两次不同 `trace_id`（`fb962d6b…`、`984bde54…`）均如此，连"你的营业时间是几点"这种单跳问答也被拒。
+2. 随后启用套 B（本地反代 → GLM-4.7-Flash，见 §9）绕过配额，首链路已通、D 分支已复现；但智谱偶发 `1305` 限流仍会打断整轮跨站调用，`absent` 与窗口层 `unknown` 的截图因此仍缺。
+
+代码侧三态由 55 项用例覆盖，全绿。
 
 ---
 
@@ -242,6 +247,25 @@ DRILL reject-write: closing the socket before handling; nothing recorded.
 - **行为更正：时限只阻止"再发起下一次调用"，不中断已在飞的调用。** 演练 A 的远程调用实测 `90716ms`、其中 `confirm_dispatch 45646ms`，压在 90 秒线上仍正常返回结果。
 - **真实触发已发生一次**（partner 调用层）：因确认弹窗耗时超预算，页面给出 `Dispatch to Conveyor Courier — No reply — the request was skipped at the deadline`。该次窗口未打开，故**它证明的是 partner 层的时限行为，不是窗口层 unknown**。两者在文档里分开记。
 
+**套 B 上又复现一次，证据更完整**（`m2-unknown-deadline.png`，路由：本地反代 → GLM-4.7-Flash）。执行日志逐字：
+
+```
+AGENT   little_oven_assistant @ 127.0.0.1:8084 · 181564ms
+LLM     GLM-4.7-Flash via 127.0.0.1:8086 · 111803ms
+TOOL    · 41432ms
+COMPOSITION_LIMIT
+RESULT  courier_dispatch  Skipped Conveyor Courier: the composition deadline was reached.
+LLM     GLM-4.7-Flash via 127.0.0.1:8086 · 16842ms
+AGENT_RESULT
+```
+
+这一次同时钉死了时限的两条行为：
+
+1. **不中断在飞**：那次模型调用跑了 **111803ms**，远超 90 秒，仍正常返回（比 §6.1 的 90716ms 更极端）。
+2. **只阻止再发起**：其后对 Conveyor Courier 的 partner 调用被 `COMPOSITION_LIMIT` 跳过，返回 `Skipped … the composition deadline was reached`，而整轮**没有中止**——后面还照常发了一次 16842ms 的模型调用并产出 `AGENT_RESULT`。
+
+诱因是 consent 卡停留超过预算（GLM 单次响应本就慢），与演练 A 的成因一致。
+
 ---
 
 ## 7. FileStore 的非计划实测
@@ -274,11 +298,63 @@ node courier-site/worker/local-server.mjs --port 8086 --drill reject-write    # 
 
 ---
 
-## 9. 待补
+## 9. 双路由：本地 LLM 反代（套 B）
+
+intern-ai 的 key 配额耗尽后新增的第二条路由，与套 A 并存，**零 manifest 改动、零 runtime 接触**，只在 ⚙ AI model settings 三字段切换。
+
+| | 套 A | 套 B |
+| --- | --- | --- |
+| baseUrl | `https://discovery-api.intern-ai.org.cn/v1` | `http://127.0.0.1:8086/llm-proxy` |
+| model | `deepseek-v4.1-flash-1017` | `GLM-4.7-Flash` |
+| key | 访客 BYOK，直连 provider | 占位 `env`（反代持密钥）或访客自有智谱 key（透传） |
+| 状态 | 配额耗尽（429 quota_exceeded） | 可用 |
+
+### 9.1 为什么必须反代
+
+浏览器直连 `open.bigmodel.cn` 栽在**预检**：OPTIONS 返回 405 / 无 `Access-Control-Allow-Origin`，请求根本发不出去。tokenhub 同样。反代自己答预检再转发。
+
+`courier-site/worker/llm-proxy.mjs` 是**独立 dev-only 模块**，`local-server.mjs` 命中 `/llm-proxy` 前缀即进它、**不进 desk 的 `handle()`**；Worker 没有这条路由，M4 抽取不受污染。它同时是官方 `publisher_funded`「自建持密钥代理」的本地等价物，M3 原位升级为独立 Worker + `wrangler secret`。
+
+CORS **单独写、不复用 desk 白名单**：desk 只放行 `Content-Type`，而带 Bearer 头必触发预检，所以这里 `Access-Control-Allow-Headers` 必须含 `Authorization, Content-Type`。ACAO 回显白名单 origin（8084/8085 的 127.0.0.1 与 localhost 四个），非白名单不回 ACAO。实测预检 **204**，四个头齐全。
+
+密钥纪律与 M2-③ 私钥一致：从启动环境变量读，`.env` 进 git-ignore（`git check-ignore` 实测命中 `.gitignore:5`），提交 `.env.example` 占位（`!.env.example` 反排除）。日志只记 `key: server` / `key: visitor`，不记 key 值。
+
+**流式直通不缓冲**：runtime 恒发 `stream:true` 并增量读 SSE，缓冲会卡住 UI。上游 `Accept-Encoding: identity`，避免压缩后再拼装。
+
+### 9.2 两处实现层决定（自主追加，需备案）
+
+1. **串行队列**：同一时刻只允许一个上游调用在飞。
+2. **最小间隔 8 秒**：两次上游调用之间强制留白。
+
+两者都**不改请求内容、不重试**——被拒就原样把 429 交回页面，符合「勿加自动重试」的约束。加它们的原因是下面这组实测。
+
+### 9.3 智谱 1305 的实测结论（三次对照，推翻两个直觉）
+
+`{"code":"1305","message":"该模型当前访问量过大，请您稍后再试"}`，HTTP 429。
+
+| 假设 | 实验 | 结论 |
+| --- | --- | --- |
+| 并发超限 | 加队列前日志出现 143ms 内两发、双双被拒；加队列后两发已错开 | **部分成立**，但错开后仍会被拒，不是唯一原因 |
+| 请求体积超限 | 858B 成功、1968B 失败、3818B 成功、6038B 成功；真实浏览器请求 11–18KB 大量成功 | **推翻**，与体积无关 |
+| 连发过密 | 加 8 秒最小间隔后**连续 6 次调用全 200**（含 11–18KB 大请求） | **成立**，是主要诱因 |
+
+但节流后仍偶发 429，**不是 100% 可靠**。原始日志：`raw-m2-route-b-proxy.txt`。
+
+**另一个必须记住的副作用**：GLM-4.7-Flash 是思考模型，单次响应实测 1547ms ~ **111803ms** 不等。慢的那头会自己把 90 秒 composition 预算吃穿——§6.4 的 D 分支正是这么复现的。做窗口层演练时要把这个延迟算进预算。
+
+### 9.4 套 B 首链路已验证
+
+`m2-route-b-first-link.png`：真浏览器里问答成功，执行日志逐字 `LLM GLM-4.7-Flash via 127.0.0.1:8086 · key: local BYOK (not shown)`。预检 204 + POST 200 + SSE 直通 + 上游真实 `model:"glm-4.7-flash"` 均已单独实测。
+
+---
+
+## 10. 待补
 
 1. `absent` 面板截图（用 `fail-write` 复现）。
 2. `unknown` 断网注入演练与截图（杀 8086 保持 45 秒不可达）。
 3. 窗口层 unknown 的真浏览器证据。
 4. unknown 分支的**对账页兜底**目前只指向跑腿站 jobs 页（`deskLink()`），真正的双方对账页待 M2-④。
 
-以上 1–3 依赖模型配额恢复。
+1–3 的共同前置是**让写窗口真的打开一次**，而这需要一轮跨站调用里的每一次模型调用都成功。套 B 已把成功率从「几乎每轮必挂」提到「多数调用成功」，但上游仍偶发 1305，尚未凑齐一整轮。这是外部服务稳定性问题，不是本项目代码问题；三态本身由 55 项用例覆盖。
+
+**注意 C 的一个约束**：反代与接单口同进程同端口，杀 8086 会同时杀掉反代。因此 C 必须**在写窗口已经打开之后**再杀——窗口层的 5 次读回不需要模型，这样才成立。

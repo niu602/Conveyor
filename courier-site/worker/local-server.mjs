@@ -20,10 +20,15 @@
 // fail-write answers with a real status instead, which the browser does not retry, and
 // the desk client still cannot tell whether the write landed — it throws `unknown`.
 // Use fail-write for the absent branch and reject-write only to show that retry.
+//
+// /llm-proxy is a development-only LLM reverse proxy on this same port (see
+// llm-proxy.mjs). It is routed before the desk handler and shares nothing with it.
+// Set ZHIPU_API_KEY in the environment to let the proxy hold the provider key.
 import { createServer } from "node:http";
 import { fileURLToPath } from "node:url";
 import { handle } from "./index.js";
 import { FileStore } from "./file-store.mjs";
+import { isLlmProxyPath, handleLlmProxy } from "./llm-proxy.mjs";
 import { seedDemoJob } from "../demo-job.js";
 
 const args = process.argv.slice(2);
@@ -40,6 +45,12 @@ await seedDemoJob(store);
 
 const server = createServer(async (req, res) => {
   const path = String(req.url || "").split("?")[0].replace(/\/+$/, "");
+  // Development LLM proxy: a different concern on the same port, handled before the
+  // desk sees anything. It never reaches handle(), and the Worker has no such route.
+  if (isLlmProxyPath(path)) {
+    handleLlmProxy(req, res);
+    return;
+  }
   // One shot: the mode is taken off the shelf for this request only.
   let mode = "";
   if (armed && req.method === "POST" && path === "/api/dispatch") {
@@ -89,4 +100,5 @@ server.listen(port, "127.0.0.1", () => {
   console.log("Endpoints: POST /api/quote, POST /api/dispatch/check, POST /api/dispatch,");
   console.log("           GET /api/dispatch/outcome?key=..., GET /api/jobs, GET /api/jobs/:id,");
   console.log("           POST /api/jobs/:id/cancel, POST /api/jobs/:id/advance, GET /api/health");
+  console.log(`Dev LLM proxy: POST /llm-proxy/chat/completions (server key ${process.env.ZHIPU_API_KEY ? "present" : "absent"})`);
 });

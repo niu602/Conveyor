@@ -1,0 +1,22 @@
+Courier desk (local, file-backed) on http://127.0.0.1:8086
+Data: D:\Conveyor\courier-site\.local\desk.json
+Endpoints: POST /api/quote, POST /api/dispatch/check, POST /api/dispatch,
+           GET /api/dispatch/outcome?key=..., GET /api/jobs, GET /api/jobs/:id,
+           POST /api/jobs/:id/cancel, POST /api/jobs/:id/advance, GET /api/health
+Dev LLM proxy: POST /llm-proxy/chat/completions (server key present)
+LLM proxy 2026-11-28T08:37:52.676Z: POST 14499B -> bigmodel (key: server)
+LLM proxy: <- 200 after 109522ms
+LLM proxy 2026-11-28T08:39:52.484Z: POST 18180B -> bigmodel (key: server)
+LLM proxy: <- 200 after 957ms
+LLM proxy 2026-11-28T08:40:37.392Z: POST 18666B -> bigmodel (key: server)
+LLM proxy: <- 200 after 14146ms
+LLM proxy 2026-11-28T08:43:45.733Z: POST 14499B -> bigmodel (key: server)
+LLM proxy: <- 200 after 17311ms
+LLM proxy 2026-11-28T08:44:13.673Z: POST 11442B -> bigmodel (key: server)
+LLM proxy: <- 200 after 60242ms
+LLM proxy 2026-11-28T08:45:23.671Z: POST 13484B -> bigmodel (key: server)
+LLM proxy: <- 200 after 180324ms
+LLM proxy 2026-11-28T08:48:31.997Z: POST 15059B -> bigmodel (key: server)
+LLM proxy: <- 429 after 219ms
+LLM proxy 2026-11-28T08:48:56.100Z: POST 14522B -> bigmodel (key: server)
+LLM proxy: <- 500 after 34612ms
