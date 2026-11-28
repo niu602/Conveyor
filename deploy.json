@@ -1,0 +1,27 @@
+{
+  "_note": [
+    "Single source of truth for the production origins. Fill these in on deploy day,",
+    "then run: node tools/deploy-origins.mjs --apply && node sync-shared.mjs",
+    "and finally: node tools/deploy-origins.mjs --check",
+    "An origin is scheme + host, with no trailing slash and no path.",
+    "Placeholders are deliberate: --apply refuses to run while any is left, so a half",
+    "filled file cannot produce a half switched site."
+  ],
+  "origins": {
+    "pizza": "REPLACE_WITH_PIZZA_PAGES_ORIGIN",
+    "courier": "REPLACE_WITH_COURIER_PAGES_ORIGIN",
+    "desk": "REPLACE_WITH_DESK_WORKER_ORIGIN"
+  },
+  "_partners_note": [
+    "The pizza network also names Tidewhistle Guesthouse and Marrow Point Harbor Tours,",
+    "which are the skill's example sites and are not hosted by this project. They run only",
+    "on this machine at 127.0.0.1:8080 and localhost:8081. The official listing has no",
+    "hosted copy of either, so online those two partner tools would point at dead URLs.",
+    "Decision pending: host them too, or drop them from the production network.",
+    "Until it is made, --check reports them as undecided rather than guessing."
+  ],
+  "partners": {
+    "guesthouse": null,
+    "harborTours": null
+  }
+}

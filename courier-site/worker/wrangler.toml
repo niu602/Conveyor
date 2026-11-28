@@ -4,12 +4,28 @@ compatibility_date = "2026-11-01"
 
 # The desk's database. Create it once with:
 #   wrangler d1 create conveyor-courier
-# then put the printed database_id below, and apply the schema with:
-#   wrangler d1 execute conveyor-courier --file=./schema.sql --remote
+# then put the printed database_id below. Until that is done this file cannot deploy,
+# which is deliberate: a placeholder id must fail loudly, not silently pick a database.
 [[d1_databases]]
 binding = "DB"
 database_name = "conveyor-courier"
 database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+migrations_dir = "migrations"
+
+# Apply the schema with migrations, so a later column is a new numbered file rather than
+# an edit to one already applied:
+#   wrangler d1 migrations list conveyor-courier --remote      (what is applied)
+#   wrangler d1 migrations apply conveyor-courier --remote     (apply the pending ones)
+# migrations/0001_init.sql and schema.sql are kept identical by a test; schema.sql stays
+# as the readable reference and for `wrangler d1 execute --file=./schema.sql`.
+
+# Secrets, never in this file and never in the repository:
+#   wrangler secret put RECEIPT_PRIVATE_KEY        (the P-256 private JWK, one line)
+#   wrangler secret put RECEIPT_RETIRED_PUBLIC_KEYS  (optional, a JSON array of old public JWKs)
+# worker/index.js reads them through signerFromEnv(env), the same call the local server
+# makes with process.env. Moving from .env to a secret changes where the value lives,
+# not one line of code. Without the secret the desk still takes deliveries and serves
+# unsigned receipts.
 
 # Local development runs on 8086 so the site's own server keeps 8085.
 [dev]

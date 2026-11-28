@@ -1,0 +1,7 @@
+tables: job_events, jobs, quotes, sqlite_sequence
+indexes: idx_events_job, idx_jobs_created
+jobs columns: 21 (receipt_sig present)
+rows after same-key insert twice: [{"id":"J-1","receipt_kid":"e9tenikxahzfu45m","receipt_sig":"sig"}]
+re-applying the migration is a no-op: ok
+(node:57048) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

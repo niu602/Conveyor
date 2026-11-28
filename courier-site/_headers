@@ -1,0 +1,33 @@
+# Cloudflare Pages headers for Conveyor Courier.
+#
+# Only the public bundle files get Access-Control-Allow-Origin: *, so other agent sites
+# and tools can read them. This mirrors what the skill's own serve_site.mjs sends locally,
+# so a site behaves the same in production as it did in the local checks.
+#
+# Business endpoints are NOT here. The desk's intake is a separate Worker with its own
+# exact-origin allow-list; it must never answer with *.
+#
+# bridge/ deliberately gets no X-Frame-Options and no frame-ancestors policy: callers load
+# bridge/action-bridge.html in a hidden frame. Pages sends neither by default, so the rule
+# is to not add them. The bridge needs no CORS header.
+
+/agent-manifest.json
+  Access-Control-Allow-Origin: *
+
+/courier_dispatch.network.json
+  Access-Control-Allow-Origin: *
+
+/links.json
+  Access-Control-Allow-Origin: *
+
+/agent-mcp.json
+  Access-Control-Allow-Origin: *
+
+/.well-known/nsdeploy.json
+  Access-Control-Allow-Origin: *
+
+/.well-known/nsdeploy-agent.json
+  Access-Control-Allow-Origin: *
+
+/runtime/sandbox-worker.js
+  Content-Security-Policy: default-src 'none'; script-src blob:; connect-src 'none'; worker-src 'none'

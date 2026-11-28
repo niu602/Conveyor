@@ -5,6 +5,7 @@
 // the same shape as D1. No server and no network are involved.
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFile } from "node:fs/promises";
 import { handle, ALLOWED_ORIGINS } from "../worker/index.js";
 import { MemoryStore, CourierDesk } from "../courier-desk.js";
 import { D1Store } from "../worker/d1-store.js";
@@ -538,6 +539,18 @@ class D1Fake {
     return row;
   }
 }
+
+test("the D1 migration and the readable schema are the same SQL", async () => {
+  // Two files, one schema. A column added to one and not the other would deploy a desk
+  // whose store binds a column the database does not have.
+  const schema = await readFile(new URL("../worker/schema.sql", import.meta.url));
+  const migration = await readFile(new URL("../worker/migrations/0001_init.sql", import.meta.url));
+  assert.ok(migration.equals(schema), "migrations/0001_init.sql has drifted from schema.sql.");
+  // The three receipt columns must be in the migration, not only in the store's INSERT.
+  for (const column of ["receipt_kid", "receipt_alg", "receipt_sig"]) {
+    assert.match(migration.toString("utf8"), new RegExp(`${column} TEXT NOT NULL DEFAULT ''`));
+  }
+});
 
 test("the fee table's boundaries are the ones the desk publishes", () => {
   // The largest parcel the desk takes, priced by hand.
