@@ -37,7 +37,13 @@ CREATE TABLE IF NOT EXISTS jobs (
   eta_minutes INTEGER NOT NULL,
   status TEXT NOT NULL,
   created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL
+  updated_at TEXT NOT NULL,
+  -- The receipt's signature, made once over the booking facts. kid names the signing key
+  -- so a later rotation does not invalidate receipts already issued. Empty when the desk
+  -- runs without a signing key.
+  receipt_kid TEXT NOT NULL DEFAULT '',
+  receipt_alg TEXT NOT NULL DEFAULT '',
+  receipt_sig TEXT NOT NULL DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS job_events (

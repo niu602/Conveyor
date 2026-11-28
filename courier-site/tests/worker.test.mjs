@@ -6,9 +6,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { handle, ALLOWED_ORIGINS } from "../worker/index.js";
-import { MemoryStore } from "../courier-desk.js";
+import { MemoryStore, CourierDesk } from "../courier-desk.js";
 import { D1Store } from "../worker/d1-store.js";
 import { CourierData } from "../courier-data.js";
+import { generateKeyPair, verifyReceipt, kidOf } from "../receipt-crypto.js";
+import { createSigner } from "../worker/receipt-signer.mjs";
 
 const CALLER = "http://127.0.0.1:8084";
 const DESK = "http://localhost:8085";
@@ -23,15 +25,16 @@ const NOW = "2026-11-25T18:30:00.000Z";
  * :param body: The JSON body, or null.
  * :param origin: The calling page's origin.
  * :param clock: A fixed clock, as an ISO string.
+ * :param signer: An optional receipt signer, as the desk gets it.
  * :return: A promise of the status, the body and the CORS header.
  */
-async function send(store, method, path, body, origin = CALLER, clock = NOW) {
+async function send(store, method, path, body, origin = CALLER, clock = NOW, signer = null) {
   const request = new Request(`http://localhost:8086${path}`, {
     method,
     headers: origin === null ? { "Content-Type": "application/json" } : { "Content-Type": "application/json", Origin: origin },
     body: body === null ? undefined : JSON.stringify(body),
   });
-  const response = await handle(request, store, () => new Date(clock));
+  const response = await handle(request, store, () => new Date(clock), signer);
   const text = await response.text();
   return {
     status: response.status,
@@ -437,6 +440,35 @@ test("the D1 store enforces the key with the same shape as the memory store", as
  */
 class D1Fake {
   /**
+   * A binding-shaped stand-in over a fresh row set.
+   *
+   * :return: An object with prepare and batch, as the D1 binding has.
+   */
+  static db() {
+    const rows = new Map();
+    return {
+      prepare(sql) {
+        return {
+          bind(...values) {
+            return {
+              async first() {
+                return D1Fake.first(sql, values, rows);
+              },
+              async all() {
+                return { results: D1Fake.all(sql, values, rows) };
+              },
+              async run() {
+                D1Fake.run(sql, values, rows);
+                return { success: true };
+              },
+            };
+          },
+        };
+      },
+    };
+  }
+
+  /**
    * Read one row.
    *
    * :param sql: The statement.
@@ -497,7 +529,8 @@ class D1Fake {
   static row(values) {
     const columns = ["id", "quote_id", "idempotency_key", "request_digest", "pizza_order_ref", "item_summary",
       "drop_zone", "parcel_size", "item_count", "customer_name", "phone", "address", "note",
-      "fee_cents", "eta_minutes", "status", "created_at", "updated_at"];
+      "fee_cents", "eta_minutes", "status", "created_at", "updated_at",
+      "receipt_kid", "receipt_alg", "receipt_sig"];
     const row = {};
     columns.forEach((column, index) => {
       row[column] = values[index];
@@ -518,4 +551,109 @@ test("the fee table's boundaries are the ones the desk publishes", () => {
   assert.equal(CourierData.openAt("21:59"), true);
   assert.equal(CourierData.openAt("22:00"), false);
   assert.equal(CourierData.openAt("09:59"), false);
+});
+
+test("the public key endpoint is open to anyone and publishes no private half", async () => {
+  const store = new MemoryStore();
+  // A stranger's page may fetch the key: verification must not require being a customer.
+  const anonymous = await send(store, "GET", "/api/pubkey", null, "http://evil.example");
+  assert.equal(anonymous.status, 200);
+  assert.equal(anonymous.acao, "*", "The one endpoint that answers with *, because a public key is public.");
+  assert.deepEqual(anonymous.body.keys, [], "Without a signing key the desk publishes none.");
+  const noOrigin = await send(store, "GET", "/api/pubkey", null, null);
+  assert.equal(noOrigin.status, 200);
+  assert.equal(noOrigin.acao, "*");
+  const preflight = await send(store, "OPTIONS", "/api/pubkey", null, "http://evil.example");
+  assert.equal(preflight.status, 204);
+  const wrongMethod = await send(store, "POST", "/api/pubkey", {}, CALLER);
+  assert.equal(wrongMethod.status, 405);
+
+  const pair = await generateKeyPair();
+  const signer = await createSigner({ privateJwk: pair.privateJwk });
+  const served = await send(store, "GET", "/api/pubkey", null, CALLER, NOW, signer);
+  assert.equal(served.body.keys.length, 1);
+  assert.equal(served.body.keys[0].kid, await kidOf(pair.publicJwk));
+  assert.equal("d" in served.body.keys[0], false);
+  // The business endpoints stay closed even when the key endpoint is open.
+  const stillClosed = await send(store, "POST", "/api/quote", { dropZone: "harbor", parcelSize: "small", itemCount: 1 }, "http://evil.example", NOW, signer);
+  assert.equal(stillClosed.status, 403);
+  assert.equal(stillClosed.acao, null);
+});
+
+test("a recorded dispatch carries a verifiable receipt that a replay does not re-sign", async () => {
+  const store = new MemoryStore();
+  const pair = await generateKeyPair();
+  const signer = await createSigner({ privateJwk: pair.privateJwk });
+  const held = await quote(store, { dropZone: "north", parcelSize: "small", itemCount: 2 });
+  const body = dispatchBody(held, `dispatch:LO-77:${held.quoteId}`);
+  const first = await send(store, "POST", "/api/dispatch", body, CALLER, NOW, signer);
+  assert.equal(first.status, 201);
+  const receipt = first.body;
+  assert.equal(receipt.kid, signer.kid);
+  assert.equal(receipt.alg, "ECDSA-P256-SHA256");
+  assert.ok(receipt.signature);
+  // Verified with exactly what /api/pubkey serves, not with the private JWK.
+  const published = (await send(store, "GET", "/api/pubkey", null, CALLER, NOW, signer)).body.keys[0];
+  assert.equal(await verifyReceipt(published, receipt), true);
+  // No visitor detail travels in the receipt at all.
+  for (const field of ["customerName", "phone", "address", "note"]) {
+    assert.equal(field in receipt, false, `${field} must not be in a receipt.`);
+  }
+
+  // The same key replayed: the first job comes back with the very same signature.
+  const replay = await send(store, "POST", "/api/dispatch", body, CALLER, "2026-11-25T18:31:00.000Z", signer);
+  assert.equal(replay.status, 200);
+  assert.equal(replay.body.replayed, true);
+  assert.equal(replay.body.signature, receipt.signature);
+  assert.equal(replay.body.jobId, receipt.jobId);
+  assert.equal(await verifyReceipt(published, replay.body), true);
+
+  // The run proceeds and the receipt stays verifiable: status is outside the signature.
+  const advanced = await send(store, "POST", `/api/jobs/${receipt.jobId}/advance`, { status: "picked_up" }, DESK, "2026-11-25T18:40:00.000Z", signer);
+  assert.equal(advanced.status, 200);
+  assert.notEqual(advanced.body.updatedAt, receipt.updatedAt);
+  assert.equal(await verifyReceipt(published, advanced.body), true);
+  // The list serves the same signed receipts.
+  const listed = await send(store, "GET", "/api/jobs", null, DESK, NOW, signer);
+  const row = listed.body.jobs.find((entry) => entry.jobId === receipt.jobId);
+  assert.equal(row.signature, receipt.signature);
+  assert.equal(await verifyReceipt(published, row), true);
+});
+
+test("a desk without a signing key still takes deliveries, with unsigned receipts", async () => {
+  const store = new MemoryStore();
+  const held = await quote(store, { dropZone: "harbor", parcelSize: "small", itemCount: 1 });
+  const answer = await send(store, "POST", "/api/dispatch", dispatchBody(held, `dispatch:LO-77:${held.quoteId}`));
+  assert.equal(answer.status, 201);
+  assert.equal("signature" in answer.body, false);
+  assert.equal("kid" in answer.body, false);
+  assert.equal(await verifyReceipt({}, answer.body), false);
+});
+
+test("D1 keeps the receipt signature across a read-back", async () => {
+  const store = new D1Store(D1Fake.db());
+  const pair = await generateKeyPair();
+  const signer = await createSigner({ privateJwk: pair.privateJwk });
+  const job = {
+    jobId: "J-signed", quoteId: "Q-1", idempotencyKey: "dispatch:LO-77:Q-1", pizzaOrderRef: "LO-77",
+    itemSummary: "2x Margherita", dropZone: "north", parcelSize: "small", itemCount: 2,
+    customerName: "Sam Lee", phone: "555-0100", address: "12 Harbor Rd", note: "",
+    feeCents: 450, etaMinutes: 18, status: "assigned", createdAt: NOW, updatedAt: NOW,
+  };
+  const signed = await signer.sign(job);
+  await store.putJob({ ...job, receiptKid: signed.kid, receiptAlg: signed.alg, receiptSig: signed.signature });
+  // Every read path must return the columns, or a restart would silently drop the proof.
+  for (const stored of [await store.getJob("J-signed"), await store.getJobByKey(job.idempotencyKey), (await store.listJobs(5))[0]]) {
+    assert.equal(stored.receiptSig, signed.signature);
+    assert.equal(stored.receiptKid, signer.kid);
+    assert.equal(stored.receiptAlg, "ECDSA-P256-SHA256");
+    const receipt = CourierDesk.receipt(stored);
+    assert.equal(receipt.signature, signed.signature);
+    assert.equal(await verifyReceipt(pair.publicJwk, receipt), true);
+  }
+  // An unsigned job reads back with empty strings, and its receipt carries no signature.
+  await store.putJob({ ...job, jobId: "J-plain", idempotencyKey: "dispatch:LO-88:Q-1" });
+  const plain = await store.getJob("J-plain");
+  assert.equal(plain.receiptSig, "");
+  assert.equal("signature" in CourierDesk.receipt(plain), false);
 });

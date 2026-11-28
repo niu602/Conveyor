@@ -19,11 +19,14 @@ export class CourierDesk {
    *   listJobs and addEvent.
    * :param now: A function returning the current Date.
    * :param ids: A function returning a fresh unique id string.
+   * :param signer: Optional receipt signer. The page's local desk has none — a private
+   *   key never reaches a browser — so its receipts are simply unsigned.
    */
-  constructor(store, now, ids) {
+  constructor(store, now, ids, signer) {
     this.store = store;
     this.now = now || (() => new Date());
     this.ids = ids || CourierDesk.randomId;
+    this.signer = signer || null;
   }
 
   /**
@@ -168,6 +171,14 @@ export class CourierDesk {
       createdAt: at,
       updatedAt: at,
     };
+    // The receipt is signed once, over the booking facts, and stored with the job. A
+    // replay returns the same signature, and a later status change does not break it.
+    if (this.signer) {
+      const signed = await this.signer.sign(job);
+      job.receiptKid = signed.kid;
+      job.receiptAlg = signed.alg;
+      job.receiptSig = signed.signature;
+    }
     // The store enforces the key. A second writer that raced us gets the first job back.
     const stored = await this.store.putJob(job);
     await this.store.addEvent(stored.jobId, "assigned", at, `${stored.dropZone}, ${stored.itemCount} items`);
@@ -316,6 +327,9 @@ export class CourierDesk {
       etaMinutes: job.etaMinutes,
       createdAt: job.createdAt,
       updatedAt: job.updatedAt,
+      // Present only when the desk holds a signing key. The signature covers the booking
+      // facts, not the status, so it stays valid as the run proceeds.
+      ...(job.receiptSig ? { kid: job.receiptKid, alg: job.receiptAlg, signature: job.receiptSig } : {}),
     };
   }
 }

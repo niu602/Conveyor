@@ -7,10 +7,16 @@
 // CORS is limited to the two demo origins. Business endpoints never send "*": only the
 // public agentic files do, and those are served by the static host.
 import { CourierDesk } from "../courier-desk.js";
+import { RECEIPT_ALG } from "../receipt-crypto.js";
 import { D1Store } from "./d1-store.js";
 
 /**
  * The origins allowed to call this intake, as exact origins with the port.
+ *
+ * TODO(M3): replace these two demo origins with the deployed Pages domains before the
+ * site goes live. Missing this breaks the write path in production: the browser's
+ * preflight gets no Access-Control-Allow-Origin and the dispatch never leaves the page.
+ * The public key endpoint below is deliberately not part of this list.
  */
 export const ALLOWED_ORIGINS = [
   "http://localhost:8085",
@@ -23,11 +29,32 @@ export const ALLOWED_ORIGINS = [
  * :param request: The incoming Request.
  * :param store: The store the desk uses.
  * :param now: An optional clock, for tests.
+ * :param signer: An optional receipt signer. Without one the desk still takes deliveries
+ *   and simply serves unsigned receipts.
  * :return: A promise of the Response.
  */
-export async function handle(request, store, now) {
+export async function handle(request, store, now, signer) {
   const url = new URL(request.url);
   const origin = request.headers.get("Origin") || "";
+  const path = url.pathname.replace(/\/+$/, "") || "/";
+
+  // The public key is a public channel: anyone may fetch it to verify a receipt, from any
+  // origin. It carries no secret and no visitor data, so it is the one endpoint that
+  // answers with "*". Every business endpoint below stays on the exact-origin list.
+  if (path === "/api/pubkey") {
+    const open = {
+      "Content-Type": "application/json; charset=utf-8",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+    };
+    if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: open });
+    if (request.method !== "GET") {
+      return new Response(JSON.stringify({ ok: false, reason: "Use GET." }), { status: 405, headers: open });
+    }
+    const keys = signer ? signer.publicKeys() : [];
+    return new Response(JSON.stringify({ ok: true, alg: RECEIPT_ALG, keys }), { status: 200, headers: open });
+  }
+
   const allowed = ALLOWED_ORIGINS.includes(origin);
   const headers = { "Content-Type": "application/json; charset=utf-8" };
   if (allowed) {
@@ -47,8 +74,7 @@ export async function handle(request, store, now) {
     return send(403, { ok: false, reason: "This origin may not call the courier desk." });
   }
 
-  const desk = new CourierDesk(store, now);
-  const path = url.pathname.replace(/\/+$/, "") || "/";
+  const desk = new CourierDesk(store, now, undefined, signer);
 
   try {
     if (request.method === "GET" && path === "/api/health") {
@@ -158,10 +184,14 @@ async function readJson(request) {
 export default {
   /**
    * :param request: The incoming Request.
-   * :param env: The bindings, with DB.
+   * :param env: The bindings, with DB and, from M3, RECEIPT_PRIVATE_KEY as a secret.
    * :return: A promise of the Response.
    */
   async fetch(request, env) {
-    return handle(request, new D1Store(env.DB));
+    // Same code path as local: the key arrives through the environment either way, so
+    // M3 only changes where the value is stored, not how it is read.
+    const { signerFromEnv } = await import("./receipt-signer.mjs");
+    const signer = await signerFromEnv(env);
+    return handle(request, new D1Store(env.DB), undefined, signer);
   },
 };

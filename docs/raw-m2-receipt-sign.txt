@@ -1,0 +1,9 @@
+quote 200 Q-623d204a-a486-4288-8583-6528b0962cd7 $4.50
+dispatch 201 J-aa26b9b5-12bc-4fab-b0b7-e811d4a58846 kid e9tenikxahzfu45m alg ECDSA-P256-SHA256
+signature PwII28Q-WdPqX0lzMdzLudH6QAmwXwpfzKRhKtSU7JE4app4Xxa0yAAdpErebEakJdTdNWYHZ6m7_NwuqHAexw
+verify with published key: true
+verify with fee raised to 4500: false
+PII in receipt: []
+replay 200 replayed true same signature: true
+list row verifies: true
+jobs total 6 unsigned (pre-M2-3): 4

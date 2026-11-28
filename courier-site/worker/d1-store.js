@@ -77,8 +77,8 @@ export class D1Store {
       .prepare(
         `INSERT INTO jobs (id, quote_id, idempotency_key, request_digest, pizza_order_ref, item_summary, drop_zone,
            parcel_size, item_count, customer_name, phone, address, note, fee_cents, eta_minutes,
-           status, created_at, updated_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18)
+           status, created_at, updated_at, receipt_kid, receipt_alg, receipt_sig)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21)
          ON CONFLICT(idempotency_key) DO NOTHING`,
       )
       .bind(
@@ -100,6 +100,9 @@ export class D1Store {
         job.status,
         job.createdAt,
         job.updatedAt,
+        job.receiptKid || "",
+        job.receiptAlg || "",
+        job.receiptSig || "",
       )
       .run();
     // Whether or not this insert landed, the key now names exactly one job.
@@ -213,6 +216,9 @@ export class D1Store {
       status: row.status,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
+      receiptKid: row.receipt_kid || "",
+      receiptAlg: row.receipt_alg || "",
+      receiptSig: row.receipt_sig || "",
     };
   }
 }

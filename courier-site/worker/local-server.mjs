@@ -29,6 +29,7 @@ import { fileURLToPath } from "node:url";
 import { handle } from "./index.js";
 import { FileStore } from "./file-store.mjs";
 import { isLlmProxyPath, handleLlmProxy } from "./llm-proxy.mjs";
+import { signerFromEnv } from "./receipt-signer.mjs";
 import { seedDemoJob } from "../demo-job.js";
 
 const args = process.argv.slice(2);
@@ -42,6 +43,8 @@ const drill = drillIndex >= 0 ? args[drillIndex + 1] : "";
 let armed = drill === "drop-response" || drill === "reject-write" || drill === "fail-write";
 const store = await FileStore.open(dataFile);
 await seedDemoJob(store);
+// Plan b: the signing key is read from the environment at startup and never written down.
+const signer = await signerFromEnv(process.env);
 
 const server = createServer(async (req, res) => {
   const path = String(req.url || "").split("?")[0].replace(/\/+$/, "");
@@ -79,7 +82,7 @@ const server = createServer(async (req, res) => {
     headers: req.headers,
     body: ["GET", "HEAD"].includes(req.method) ? undefined : body,
   });
-  const response = await handle(request, store);
+  const response = await handle(request, store, undefined, signer);
   const text = await response.text();
   if (mode === "drop-response") {
     // Whatever the desk decided is already recorded and flushed. The answer never arrives.
@@ -101,4 +104,6 @@ server.listen(port, "127.0.0.1", () => {
   console.log("           GET /api/dispatch/outcome?key=..., GET /api/jobs, GET /api/jobs/:id,");
   console.log("           POST /api/jobs/:id/cancel, POST /api/jobs/:id/advance, GET /api/health");
   console.log(`Dev LLM proxy: POST /llm-proxy/chat/completions (server key ${process.env.ZHIPU_API_KEY ? "present" : "absent"})`);
+  console.log(`Receipt signing: ${signer ? `on, kid ${signer.kid}` : "off (no RECEIPT_PRIVATE_KEY)"}`);
+  console.log("Public keys: GET /api/pubkey");
 });
