@@ -13,17 +13,17 @@
 
 | 分支 | 自动化用例 | 真浏览器 + 真接单口 + 真故障 | 真模型端到端 | 截图 |
 | --- | --- | --- | --- | --- |
-| `recorded` | 有 | 有（演练 A） | 有 | `m2-unknown-recorded.png` |
-| `absent` | 有 | **部分**（演练 B，见 §6.2） | 部分 | 无 |
-| `unknown` | 有（跑满 45s） | **未做** | 未做 | 无 |
-| 90 秒 composition 时限 | — | 有（partner 层真实触发，见 §6.4） | 有（套 A 与套 B 各一次） | `m2-unknown-deadline.png` |
+| `recorded` | 有 | 有（演练 A，套 A） | 有 | `m2-unknown-recorded.png` |
+| `absent` | 有 | 有（演练 B，套 B / glm-4-plus） | 有 | `m2-unknown-absent.png` |
+| `unknown` | 有（跑满 45s） | 有（演练 C，套 B / glm-4-plus） | 有 | `m2-unknown-unknown.png`、`m2-unknown-confirming.png` |
+| 90 秒 composition 时限 | — | 有（partner 层，套 B / GLM-4.7-Flash） | 有 | `m2-unknown-deadline.png` |
 
-**未完成的原因是外部服务，不是设计或代码问题**。两段：
+**四个分支全部留证完毕。** 过程曲折，两段外部障碍与一次选型弯路都记在下面，不掩盖：
 
-1. 2026-11-28 上午，intern-ai 的 key 对 `discovery-api.intern-ai.org.cn` 返回 `LLM HTTP 429 {"code":"quota_exceeded"}`，两次不同 `trace_id`（`fb962d6b…`、`984bde54…`）均如此，连"你的营业时间是几点"这种单跳问答也被拒。
-2. 随后启用套 B（本地反代 → GLM-4.7-Flash，见 §9）绕过配额，首链路已通、D 分支已复现；但智谱偶发 `1305` 限流仍会打断整轮跨站调用，`absent` 与窗口层 `unknown` 的截图因此仍缺。
+1. 2026-11-28 上午，intern-ai 的 key 返回 `LLM HTTP 429 {"code":"quota_exceeded"}`，两次不同 `trace_id`（`fb962d6b…`、`984bde54…`）均如此，连单跳问答也被拒。
+2. 改用套 B（本地反代 → 智谱，见 §9）绕过配额。GLM-4.7-Flash 偶发 `1305` 限流且响应长尾极大，整轮跨站调用难以凑齐；换非思考档后又踩到"模型跟不上两跳协议"的坑（§9.3）。最终 **`glm-4-plus`** 稳定跑通，B/C 一轮成。
 
-代码侧三态由 55 项用例覆盖，全绿。
+代码侧三态由 55 项用例覆盖，全绿；演练后磁盘 jobs 数不变，B/C 均未落单。
 
 ---
 
@@ -199,46 +199,59 @@ DRILL drop-response: desk answered 201, closing the socket without sending it.
 
 一处 runtime 限制：导出的 trace 只保留 `resultPreview`（约 200 字符），`settledBy` 字段被截断，故该字段无法从 trace 取证；上述链路以接单口日志 + 磁盘单数 + 聊天结果三方互证。
 
-### 6.2 演练 B：`absent` —— 部分完成，并查出一个 transport 层真问题
+### 6.2 演练 B：`absent` —— 完成（套 B / glm-4-plus）
 
-以 `--drill reject-write`（处理前断连）跑了两轮，日志均逐字出现：
+接单口以 `--drill fail-write` 启动，写窗口提交后日志逐字：
 
 ```
-DRILL reject-write: closing the socket before handling; nothing recorded.
+Drill armed: fail-write (one shot, on the next POST /api/dispatch)
+DRILL fail-write: answered 503 before handling; nothing recorded.
 ```
 
-**但两轮磁盘上都各多出一单**：
+窗口随后按同一个键读回两次，落到 absent 面板（`m2-unknown-absent.png`），文案逐字：
+
+> **Nothing was recorded**
+> The first send's answer was lost, so we checked the desk twice by the same reference: no job was recorded for it. Nothing was accepted and nothing was sent twice.
+> The quote still holds, so you can send it again with the same reference. If the first send did reach the desk after all, you will get that same job back, not a second one.
+
+原 form 被重新挂回、按钮文案变为 **"Send this parcel again"**、窗口不 resolve。**磁盘 jobs 数演练前后不变**，证明 503 那次确实没落库。
+
+#### 6.2.1 前史：`reject-write` 为什么不可靠（保留为反面证据）
+
+先前用 `--drill reject-write`（处理前断连）跑了两轮，日志均出现 `closing the socket before handling; nothing recorded.`，**但两轮磁盘上各多出一单**：
 
 | 轮次 | 落单 | 键 |
 | --- | --- | --- |
 | B-1 | `J-64babb88-bb7e-493c-a70f-114e7c53e104` | `dispatch:DEMO-1795833808034:Q-a59fbc2e-7397-4a65-8c06-3a6e9ed46c7d` |
 | B-2 | `J-e4493ae7-6406-4b5f-bc17-b003aed2ff3f` | `dispatch:DEMO-1795834058207:Q-defe25f8-65fd-45aa-b290-1a533a5a1a51` |
 
-排查结论（逐层排除，非猜测）：
+逐层排除（开关只匹配 POST `/api/dispatch`、窗口 catch 只读、`DeskClient.send` 单次 fetch、开关严格一次性）后，只剩传输层：**Chrome 会对"复用的 keep-alive 连接在收到任何响应字节前被重置"的 POST 透明重发**，一次性故障被第一次请求消耗，重发落在新连接上成交。
 
-- 开关只匹配 `req.method==="POST" && path==="/api/dispatch"`，**不会误伤 `/api/dispatch/check`**；
-- `DispatchWindow.submit` 的 catch 分支只读不写，**无自动重试**；
-- `DeskClient.send` 单次 fetch，**无重试循环**；
-- 开关严格一次性（`armed=false` 取出即置）。
+这条对生产同样成立，故新增 `fail-write`（真实 503，浏览器不重发，`DeskClient` 对 5xx 仍抛 `unknown`）。`reject-write` 保留用于演示重发现象本身。B-1 顺带证明：absent 后同键重发在真浏览器里只产生一单。
 
-因此第二次 POST 只能来自**浏览器传输层**：**Chrome 会对"复用的 keep-alive 连接在收到任何响应字节前被重置"的 POST 透明重发**。一次性故障被第一次请求消耗掉，透明重发落在新连接上于是成交。
+### 6.3 演练 C：`unknown` —— 完成（套 B / glm-4-plus）
 
-**这条对生产同样成立**：`reject-write` 这种"断连"注入不足以稳定制造 absent，真实世界里它也可能被浏览器重发掉。为此新增第三种注入：
+**在写窗口已经打开、收件信息已填好之后**杀掉 8086（实测 `/api/health` 不可达），再点 "Send this parcel"。写失败 → 只读核实 → 5 读全失败 → 45 秒预算耗尽。
 
-```
---drill fail-write   处理前直接答 503，不落库
-```
+中途态（`m2-unknown-confirming.png`）逐字：
 
-503 是真实状态码，浏览器不会重发；而 `DeskClient` 对 5xx 仍抛 `unknown`（4xx 才是 desk 自己的 refusal），因此调用方依旧"不知道有没有落单"，正好进只读核实路径。**absent 分支应改用 `fail-write` 复现**，`reject-write` 保留用于演示上述重发现象。
+> **Confirming with the desk**
+> Your answer was lost on the way back. We are checking whether the run was recorded, using the same reference. Nothing is being sent again.
+> Check 3 of 5. Please keep this window open.
 
-顺带取得的真实证据：B-1 中 absent 后重试通道被触发，**同键重发只产生一单**（磁盘该键唯一），即 §2.3 的回放语义在真浏览器里成立。
+终态（`m2-unknown-unknown.png`）逐字：
 
-### 6.3 演练 C / D：`unknown` —— 未做
+> **We could not confirm it**
+> The first send's answer was lost, and checking the desk for 45 seconds did not settle whether the job was accepted. Nothing was sent twice, and this window will not offer another send while that is unknown.
+> Check it on our own jobs page, where every run on the desk is listed:
+> *Conveyor Courier — jobs on the desk*
 
-- C（断网注入，杀 8086 并保持 45 秒不可达，5 读全失败）
-- D（窗口层 unknown）
+**不再提供发送入口**，只给对账入口。磁盘 jobs 数不变。
 
-均因 §0 的配额耗尽未执行。**窗口层 unknown 目前只有自动化用例覆盖**（跑满 45s、`waits` 断言）。
+两处必须写清的演练约束：
+
+- **反代与接单口同进程同端口**，杀 8086 会连反代一起杀。所以 C 只能在窗口打开后再杀——窗口层的 5 次读回不需要模型，这样才成立。
+- **留证手法备案**：unknown 面板渲染后立即 `state.resolve(...)`，runtime 随即关闭弹窗，前两次尝试都因此没截到。第三次在提交前置 `window.opener = null`，**只切断回报通道**，让已渲染的面板留在屏上。面板本身由真实代码路径产生（`finishUnknown` 先 `box.replaceChildren(notice)` 再 resolve），三态判定逻辑一行未改。这是拍照用的固定手法，不是伪造状态。
 
 ### 6.4 90 秒 composition 时限：行号与行为更正
 
@@ -346,15 +359,39 @@ CORS **单独写、不复用 desk 白名单**：desk 只放行 `Content-Type`，
 
 `m2-route-b-first-link.png`：真浏览器里问答成功，执行日志逐字 `LLM GLM-4.7-Flash via 127.0.0.1:8086 · key: local BYOK (not shown)`。预检 204 + POST 200 + SSE 直通 + 上游真实 `model:"glm-4.7-flash"` 均已单独实测。
 
+### 9.5 模型选型：非思考档不是"换个名字"那么简单
+
+为压掉长尾延迟换非思考档，四层快检（基础 / SSE / tools 流式 / 预检）逐个过，但**快检过 ≠ 能跑两跳协议**：
+
+| 模型 | 单次延迟 | reasoning_content | tools | 真实两跳表现 |
+| --- | --- | --- | --- | --- |
+| `GLM-4.7-Flash` | 1547ms ~ 111803ms | 有 | 正常 | 协议正确，但长尾自己吃穿 90 秒预算；偶发 1305 |
+| `glm-4.5-flash` | 5936ms | 有 | — | 仍是思考档，不满足换档目标 |
+| `glm-4-flash` | 962ms | 无 | 正常 | **不合格**：只发一次 LLM 调用就道歉，根本不发 tool call |
+| `glm-4-air` | 1210ms | 无 | 正常 | **不合格**：一次误选 `lookup_job`；一次连 partner 调用都没发就宣称"已成功派单" |
+| `glm-4.5-air` | 1757ms | 有 | 正常 | 思考档，未采用 |
+| **`glm-4-plus`** | **969ms** | **无** | **正常** | **合格**：quote → authorize → confirm_dispatch → 写窗口，B/C 一轮成 |
+
+结论：**四层快检只验通道兼容，验不出多跳工具编排能力**。选型必须再加一条"真跑一轮跨站"才算过。`glm-4-plus` 是非思考旗舰档，既快又跟得上协议，B/C 与后续屏录都用它。
+
+**各演练所用模型**（不混写）：
+
+- 演练 A（recorded）：套 A，`deepseek-v4.1-flash-1017` 直连。
+- 演练 B（absent）、C（unknown）：套 B，本地反代 → **`glm-4-plus`**。
+- D（90 秒时限）：套 B，本地反代 → **`GLM-4.7-Flash`**。**故意保留慢模型原样不重做**——"在飞 111803ms 仍返回"这条证据本来就需要长尾才成立。
+- 套 A 恢复后补录 BYOK 直连素材，视频主线仍用套 A 版。
+
+### 9.6 两条实操教训
+
+- **切模型设置会清空演示订单**。`#ns-apply` 之后 `latestOrder` 没了，`authorize_delivery` 正确地拒绝 "Place the order first"。顺序必须是：先配模型 → 再下单 → 再询价授权。
+- **不要在回合在飞时重启 8086**。有一次这么干，partner 调用被打断，日志留下 `TOOL · 65748ms` + `COMPOSITION_LIMIT`。重启只在回合之间做。
+
 ---
 
 ## 10. 待补
 
-1. `absent` 面板截图（用 `fail-write` 复现）。
-2. `unknown` 断网注入演练与截图（杀 8086 保持 45 秒不可达）。
-3. 窗口层 unknown 的真浏览器证据。
-4. unknown 分支的**对账页兜底**目前只指向跑腿站 jobs 页（`deskLink()`），真正的双方对账页待 M2-④。
+1. unknown 分支的**对账页兜底**目前只指向跑腿站 jobs 页（`deskLink()`），真正的双方对账页待 M2-④。
+2. 12-8 验收的四段原始屏录（consent 卡 / 写窗口确认 / 收据验签 / 掐网 unknown），走套 B + `glm-4-plus`。
+3. 套 A 恢复后直连重验一遍，补录 BYOK 叙事素材。
 
-1–3 的共同前置是**让写窗口真的打开一次**，而这需要一轮跨站调用里的每一次模型调用都成功。套 B 已把成功率从「几乎每轮必挂」提到「多数调用成功」，但上游仍偶发 1305，尚未凑齐一整轮。这是外部服务稳定性问题，不是本项目代码问题；三态本身由 55 项用例覆盖。
-
-**注意 C 的一个约束**：反代与接单口同进程同端口，杀 8086 会同时杀掉反代。因此 C 必须**在写窗口已经打开之后**再杀——窗口层的 5 次读回不需要模型，这样才成立。
+三态演练本身已全部留证，无遗留分支。

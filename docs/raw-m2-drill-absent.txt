@@ -1,0 +1,48 @@
+Courier desk (local, file-backed) on http://127.0.0.1:8086
+Data: D:\Conveyor\courier-site\.local\desk.json
+Drill armed: fail-write (one shot, on the next POST /api/dispatch)
+Endpoints: POST /api/quote, POST /api/dispatch/check, POST /api/dispatch,
+           GET /api/dispatch/outcome?key=..., GET /api/jobs, GET /api/jobs/:id,
+           POST /api/jobs/:id/cancel, POST /api/jobs/:id/advance, GET /api/health
+Dev LLM proxy: POST /llm-proxy/chat/completions (server key present)
+LLM proxy 2026-11-28T09:29:38.807Z: POST 22676B -> bigmodel (key: server)
+LLM proxy: <- 200 after 740ms
+LLM proxy 2026-11-28T09:30:54.205Z: POST 16196B -> bigmodel (key: server)
+LLM proxy: <- 200 after 471ms
+LLM proxy 2026-11-28T09:31:03.261Z: POST 20382B -> bigmodel (key: server)
+LLM proxy: <- 200 after 687ms
+LLM proxy 2026-11-28T09:31:13.173Z: POST 11467B -> bigmodel (key: server)
+LLM proxy: <- 200 after 663ms
+LLM proxy 2026-11-28T09:31:22.719Z: POST 13673B -> bigmodel (key: server)
+LLM proxy: <- 200 after 413ms
+LLM proxy 2026-11-28T09:31:31.525Z: POST 14224B -> bigmodel (key: server)
+LLM proxy: <- 200 after 403ms
+LLM proxy 2026-11-28T09:31:42.426Z: POST 21579B -> bigmodel (key: server)
+LLM proxy: <- 200 after 487ms
+LLM proxy 2026-11-28T09:32:07.544Z: POST 17169B -> bigmodel (key: server)
+LLM proxy: <- 200 after 490ms
+LLM proxy 2026-11-28T09:33:55.983Z: POST 366B -> bigmodel (key: server)
+LLM proxy: <- 200 after 483ms
+LLM proxy 2026-11-28T09:34:05.922Z: POST 367B -> bigmodel (key: server)
+LLM proxy: <- 200 after 473ms
+LLM proxy 2026-11-28T09:34:49.416Z: POST 14535B -> bigmodel (key: server)
+LLM proxy: <- 200 after 659ms
+LLM proxy 2026-11-28T09:34:58.826Z: POST 18327B -> bigmodel (key: server)
+LLM proxy: <- 200 after 536ms
+LLM proxy 2026-11-28T09:35:08.090Z: POST 11417B -> bigmodel (key: server)
+LLM proxy: <- 200 after 401ms
+LLM proxy 2026-11-28T09:35:17.002Z: POST 13592B -> bigmodel (key: server)
+LLM proxy: <- 200 after 472ms
+LLM proxy 2026-11-28T09:35:25.966Z: POST 14527B -> bigmodel (key: server)
+LLM proxy: <- 200 after 393ms
+LLM proxy 2026-11-28T09:35:36.572Z: POST 19409B -> bigmodel (key: server)
+LLM proxy: <- 200 after 474ms
+LLM proxy 2026-11-28T09:36:26.786Z: POST 20586B -> bigmodel (key: server)
+LLM proxy: <- 200 after 462ms
+LLM proxy 2026-11-28T09:36:44.536Z: POST 15414B -> bigmodel (key: server)
+LLM proxy: <- 200 after 716ms
+LLM proxy 2026-11-28T09:36:54.575Z: POST 11495B -> bigmodel (key: server)
+LLM proxy: <- 200 after 397ms
+LLM proxy 2026-11-28T09:37:03.527Z: POST 13665B -> bigmodel (key: server)
+LLM proxy: <- 200 after 456ms
+DRILL fail-write: answered 503 before handling; nothing recorded.

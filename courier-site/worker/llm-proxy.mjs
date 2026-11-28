@@ -112,7 +112,8 @@ let lastFinished = 0;
 // Even serialised, calls fired back to back draw an instant 1305 from this key. A
 // minimum gap between them is pacing, not retrying: a refusal is still returned to the
 // page as it stands, and no request is ever sent twice.
-const MIN_GAP_MS = 8000;
+// Tunable without touching code: LLM_PROXY_MIN_GAP_MS=12000 node ... local-server.mjs
+const MIN_GAP_MS = Number(process.env.LLM_PROXY_MIN_GAP_MS || 8000);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function forward(req, res, cors, key, source) {
